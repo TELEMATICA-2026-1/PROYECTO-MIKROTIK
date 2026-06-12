@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %} Crear Pago {% endblock %}
 
+<!-- Breadcrumbs para navegación que muestra la ruta de navegación dentro de la aplicación-->
 {% block breadcrumb_items %}
     <li class="breadcrumb-item"><a href="{% url 'gestion_pagos' %}">Gestión de Pagos</a></li>
     <li class="breadcrumb-item"><a href="{% url 'pagos_pendientes' %}">Seleccionar Abonado</a></li>
@@ -9,8 +11,10 @@
 {% endblock %}
 
 {% block content_page %}
+    <!-- Contenedor principal de la página con información del cliente y formulario para registrar un nuevo pago -->
     <div class="container p-4 bg-white">
         
+        <!-- Sección de información del cliente con campos de solo lectura para mostrar los datos relevantes del cliente -->
         <div class="mb-4">
             <h4 class=".h4">Información del Cliente</h4>
             <hr class="text-muted mb-2">
@@ -49,16 +53,42 @@
         <hr class="text-muted mb-3">
 
         <div class="mb-4">
-            <span class="h5 text-danger">{{ error }}</span>
-        
+            <!-- Errores del formulario por validación o por otros motivos -->
+            {% if form.errors or error %}
+                    <div class="alert alert-danger alert-dismissible">
+                        <h5 class="alert-heading">Error al Registrar el Pago</h5>
+                        <button type="button" class="position-absolute top-0 end-0 mt-3 me-3 bg-transparent border-0 p-0" data-bs-dismiss="alert">
+                            <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20">
+                        </button>
+                            
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            {% if error %}
+                                <li>{{ error }}</li>
+                            {% endif %} 
+                        </ul>
+                    </div>
+            {% endif %}
+
+            
+            <!-- Formulario para registrar un nuevo pago, con campos para monto, método de pago, tasa del día y comprobante de pago -->
             <form action="{% url 'crear_pago' cliente.id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+
                 <div class="row g-4">  
                     <div class="col-md-4">
                         <h4 class=".h4">Registrar Pago</h4>
                     </div>
                     <div class="col-md-3 ms-auto">
-                        {{ form.fecha }}
+                        <label class="form-label fst-italic text-muted small mb-1">Fecha de registro de pago</label>
+                        <input type="text" class="form-control bg-light" value="{{ fecha|date:'d/m/Y H:i' }}" readonly>
                     </div>
                 </div>
                 <hr class="text-muted mb-3">
@@ -93,6 +123,7 @@
 
 
                 <div class="row g-4 mt-2 justify-content-end">
+                    <!-- Botón para enviar el formulario y registrar el pago -->
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-success w-100">Finalizar Pago</button>
                     </div>
@@ -112,64 +143,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-  const usdEntrada = document.getElementById('id_montoUSD');
-  const bsEntrada = document.getElementById('monto_bs');
-  const tasaEntrada = document.getElementById('id_tasa');
-
-  function pasar_Decimal(value) {
-    if (!value) return 0;
-    return parseFloat(value.toString().replace(/\s+/g, '').replace(',', '.')) || 0;
-  }
-
-  function formatoDecimal(value) {
-    return Number(value).toFixed(2).toString().replace('.', ',');
-  }
-
-  function CambioUsd() {
-    const usd = pasar_Decimal(usdEntrada.value);
-    const tasa = pasar_Decimal(tasaEntrada.value);
-    bsEntrada.value = tasa > 0 ? formatoDecimal(usd * tasa) : '';
-  }
-
-  function CambioBs() {
-    const bs = pasar_Decimal(bsEntrada.value);
-    const tasa = pasar_Decimal(tasaEntrada.value);
-    usdEntrada.value = tasa > 0 ? formatoDecimal(bs / tasa) : '';
-  }
-
-  let campoEditado = null;
-
-  usdEntrada?.addEventListener('input', () => {
-    campoEditado = 'usd';
-    CambioUsd();
-  });
-
-  bsEntrada?.addEventListener('input', () => {
-    campoEditado = 'bs';
-    CambioBs();
-  });
-
-    bsEntrada?.addEventListener('change', () => {
-        campoEditado = 'bs';
-        CambioBs();
-    });
-
-  tasaEntrada?.addEventListener('input', () => {
-    if (campoEditado === 'bs') {
-      CambioBs();
-    } else {
-      CambioUsd();
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (usdEntrada) usdEntrada.value = '';
-    if (bsEntrada) bsEntrada.value = '';
-    campoEditado = null;
-  });
-
-</script>
+<!-- Script para calcular el monto en bolívares automáticamente al ingresar el monto en dólares y la tasa del día -->
+    <script src="{% static 'js/calculoMontos.js' %}"></script>
 {% endblock %}
 
 

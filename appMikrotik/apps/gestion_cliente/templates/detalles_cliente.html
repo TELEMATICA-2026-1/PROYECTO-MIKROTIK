@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles del Cliente{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'gestion_clientes' %}">Gestión de Clientes</a></li>
+<li class="breadcrumb-item active">Detalles Cliente</li>
+{% endblock %}
+
+{% block content_page %}
+ <!-- Contenedor principal de la página con detalles del cliente e informacion del Servicio  -->
+    <div class="container p-4  bg-white ">
+
+        <!-- Sección de detalles del cliente con campos de solo lectura para mostrar los datos del cliente -->
+        <div class="mb-4">
+            <h4 class=".h4">Detalles del Cliente</h4>
+            <hr class="text-muted mb-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fst-italic text-muted small mb-1">Nombre</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.nombre}}" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fst-italic text-muted small mb-1">RIF</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.cedula }}" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fst-italic text-muted small mb-1">celular</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.celular }}" readonly>
+                </div>
+
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fst-italic text-muted small mb-1">Direccion de correo electronico</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.email}}" readonly>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fst-italic text-muted small mb-1">Direccion de residencia</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.direccion }}" readonly>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Sección de solo lectura de información del servicio, asociado al cliente -->
+        <div class="mb-4">
+            <h4 class=".h4">Detalles de Servicio</h4>
+            <hr class="text-muted mb-4">
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label fst-italic text-muted small mb-1">Plan de Internet</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.idPlan.plan }}" readonly>
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <label class="form-label fst-italic text-muted small mb-1">Precio (USD)</label>
+                    <input id="id_plan_precioUSD" type="text" class="form-control bg-light" value="{{ cliente.idPlan.precioUSD }}" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fst-italic text-muted small mb-1">Velocidad de Subida (Mbps)</label>
+                    <input id="id_plan_velocidad_subida" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_subida }}" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fst-italic text-muted small mb-1">Velocidad de Bajada (Mbps)</label>
+                    <input id="id_plan_velocidad_bajada" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_bajada }}" readonly>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fst-italic text-muted small mb-1">Direccion IP</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.direccionIP }}" readonly>
+                
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <label class="form-label fst-italic text-muted small mb-1">Estado</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.estado }}" readonly>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fst-italic text-muted small mb-1">Saldo a cancelar (USD)</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo }}" readonly>
+                </div>
+            
+            </div>
+
+            <!-- Botón para redireccionar a un usuario al historial de pagos donde podrá observar todos los pagos realizados por ese usuario en específico -->
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'gestion_pagos' %}" class="btn btn-success">Histórico de pagos</a>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

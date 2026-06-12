@@ -1,0 +1,37 @@
+{% load static %}
+<!-- Modal de confirmación para eliminar/desactivar un cliente para que un usuario con el permiso correspondiente pueda realizar la acción -->
+
+<div class="modal fade" id="confirmarBorradoModal" tabindex="-1" aria-labelledby="confirmarBorradoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Encabezado del modal con título y botón de cierre -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarBorradoModalLabel">Confirmar Desactivación de Cliente</h5>
+                <button type="button" data-bs-dismiss="modal" aria-label="Cerrar" class="bg-transparent border-0 ms-auto p-0">
+                    <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20" >
+                </button>
+            </div>
+            
+            <!-- Cuerpo del modal con mensaje de confirmación y advertencia sobre las consecuencias de la acción -->
+            <div class="modal-body">
+                <p class="fs-5">
+                    Estás a punto de eliminar/desactivar al cliente:
+                    <strong class="text-dark fs-4" id="confirmarBorradoClienteNombre"></strong>
+                </p>
+                <div class="alert alert-warning text-start" role="alert">
+                    <strong>⚠️ Atención:</strong>
+                    Esta acción podría afectar los servicios activos del cliente en los routers MikroTik y detendrá su facturación automática.
+                </div>
+            </div>
+
+            <!-- Pie del modal con botones para confirmar o cancelar la acción -->
+            <div class="modal-footer d-flex justify-content-center">
+                <form id="confirmarBorradoForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger px-4">Sí, desactivar</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

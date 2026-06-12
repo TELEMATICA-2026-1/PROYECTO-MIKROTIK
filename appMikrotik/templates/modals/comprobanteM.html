@@ -1,0 +1,42 @@
+{% load static %}
+<!-- Modal para mostrar el comprobante de pago asociado a un pago registrado, con la opción de reemplazarlo por otro archivo si es necesario -->
+<div class="modal fade" id="comprobanteModal" tabindex="-1" aria-labelledby="comprobanteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fluid modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Encabezado del modal con título y botón de cierre -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="comprobanteModalLabel">Comprobante de Pago</h5>
+                <button type="button" data-bs-dismiss="modal" aria-label="Cerrar" class="bg-transparent border-0 ms-auto p-0">
+                    <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20" >
+                </button>
+            </div>
+            <!-- Cuerpo del modal que muestra la imagen del comprobante de pago -->
+            <div class="modal-body">
+                {% if form.instance.comprobante %}
+                    <div class="mb-3">
+                        <label class="form-label">Comprobante actual</label>
+                        <img id="comprobanteImage" src="{{ form.instance.comprobante.url }}" alt="Comprobante de Pago" class="img-fluid rounded shadow-sm">
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary" role="alert">
+                        No existe comprobante actual. Selecciona uno nuevo para subir.
+                    </div>
+                {% endif %}
+                
+                <!-- Campo del formulario para subir un nuevo comprobante de pago -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.comprobante.id_for_label }}">Reemplazar comprobante</label>
+                    {{ form.comprobante }}
+                    {% if form.comprobante.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.comprobante.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-text">Si seleccionas otro archivo, el comprobante actual se reemplazará.</div>
+            </div>
+            
+        </div>
+    </div>
+</div>

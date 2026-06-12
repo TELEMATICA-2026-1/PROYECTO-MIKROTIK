@@ -1,29 +1,142 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Registrar Nuevo Cliente{% endblock %}
 
+<!-- Breadcrumb para mostrar la ruta de navegación dentro de la aplicación, con enlaces a las secciones anteriores y el título de la sección actual -->
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{% url 'gestion_clientes' %}">Gestión de Clientes</a></li>
+    <li class="breadcrumb-item active">Registrar Nuevo Cliente</li>
+{% endblock %}
+
 {% block content_page %}
-    <div class="card">
-        <div class="card-header">
-            <span class="h3">Registrar nuevo cliente</span>
-        </div>
+    <!-- Contenedor principal para el formulario de registro de nuevo cliente que el usuario o administrador pueda querer realizar -->
+    <div class="container p-4 bg-white  ">
+
         <div class="card-body">
-            {% if error %}
-                <span class="h5 text-danger">{{ error }}</span>
-                <hr>
+            <!-- Mostrar errores del formulario ya sea por validación o por otros motivos -->
+            {% if form.errors or error %}
+                    <div class="alert alert-danger alert-dismissible">
+                        <h5 class="alert-heading">Error al Registrar cliente</h5>
+                        <button type="button" class="position-absolute top-0 end-0 mt-3 me-3 bg-transparent border-0 p-0" data-bs-dismiss="alert">
+                            <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20">
+                        </button>
+                            
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            {% if error %}
+                                <li>{{ error }}</li>
+                            {% endif %} 
+                        </ul>
+                    </div>
             {% endif %}
             
-            <form action="{% url 'crear_cliente' %}" method="post">
+            <!-- Formulario para registrar un nuevo cliente -->
+            <form action="{% url 'crear_cliente' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                {{ form.as_p }}
-                
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">Registrar cliente</button>
-                    
-                    <a href="{% url 'gestion_clientes' id=0 %}" class="btn btn-secondary">Volver</a>
+                <div class="row g-4">  
+                    <div class="col-md-4">
+                        <h4 class=".h4">Datos del cliente</h4>
+                    </div>
                 </div>
+                <hr class="text-muted mb-3">
+                <section class="contenedor">  <!-- Contenedor para los datos del cliente-->
+                    <div class="row g-4">
+                        <div class="col-md-6 ">
+                            <div class="mb-2">
+                                <label class="form-label fst-italic text-muted small ">Nombre</label>
+                                {{ form.nombre }}
+                            </div>
+
+                            <div class = "row g-4" >
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label fst-italic text-muted small mb-1">Rif</label>
+                                    {{ form.cedula }}
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label fst-italic text-muted small mb-1">Celular</label>
+                                    {{ form.celular }}
+                                </div>
+                            </div>
+                        
+                            <label class="form-label fst-italic text-muted small mb-1">Correo Electrónico</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fst-italic text-muted small">Dirección de Residencia</label>
+                            {{ form.direccion }}
+
+                            <div class = "row g-4">
+                                <div class="col-md-12 text-end">
+                                    <label class="form-label fst-italic text-muted small ">Exonerar Cliente</label>
+                                    {{ form.exonerar_cliente}}                     
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="row g-4 mt-4">
+                    <div class="col-md-4">
+                        <h4 class=".h4">Datos del servicio</h4>
+                    </div>
+                </div>
+
+                <hr class="text-muted mb-3">
+
+                <section class="contenedor">  <!-- Contenedor para los datos del servicio-->
+                    <div class="row g-4">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fst-italic text-muted small mb-1">Plan de Internet</label>
+                            {{ form.idPlan }}
+                        </div>
+
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fst-italic text-muted small mb-1">Precio (USD)</label>
+                            <input id="id_plan_precioUSD" type="text" class="form-control bg-light" value="" readonly>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fst-italic text-muted small mb-1">Velocidad de Subida (Mbps)</label>
+                            <input id="id_plan_velocidad_subida" type="text" class="form-control bg-light" value="" readonly>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fst-italic text-muted small mb-1">Velocidad de Bajada (Mbps)</label>
+                            <input id="id_plan_velocidad_bajada" type="text" class="form-control bg-light" value="" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fst-italic text-muted small mb-1">Direccion IPv4</label>
+                            {{ form.direccionIP }}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Botón para enviar el formulario y confirmar los cambios realizados en los datos del cliente -->
+                <div class="d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn btn-success">Confirmar</button>
+                </div>
+                
             </form>
         </div>
     </div>
+
+    
+{% endblock %}
+
+{% block scripts %}
+<!-- Script para manejar la lógica de selección de plan y actualización de los campos relacionados con el plan seleccionado en el formulario de registro de nuevo cliente -->
+<script src="{% static 'js/seleccionarPlan.js' %}"></script>
+    
 {% endblock %}

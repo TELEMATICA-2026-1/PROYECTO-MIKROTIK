@@ -1,23 +1,140 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %} Modificar Pago {% endblock %}
+{% block title %} Modificar pago {% endblock %}
 
-{% block breadcrumb_items %}{% endblock %}
+<!-- Breadcrumbs para navegación que muestra la ruta de navegación dentro de la aplicación-->
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{% url 'gestion_pagos' %}">Gestión de Pagos</a></li>
+    <li class="breadcrumb-item"> Modificar pago </li>
+{% endblock %}
+
 {% block content_page %}
-    <div class="card">
-        <div class="card-header">
-            <span class="h3">Modificar pago</span>
+    <!-- Contenedor principal de la página con información del cliente y formulario para modificar un pago registrado -->
+    <div class="container p-4  bg-white ">
+
+        <!-- Sección de información del cliente con campos de solo lectura para mostrar los datos relevantes del cliente -->
+        <div class="mb-5">
+            <h4 class=".h4">Información del Cliente</h4>
+            <hr class="text-muted mb-4">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">Nombre</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.nombre}}" readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">RIF</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.cedula }}" readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">Celular</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.celular }}" readonly>
+                </div>
+
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">Plan</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.idPlan }}" readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">Estado</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.estado }}" readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fst-italic text-muted small mb-1">Saldo pendiente</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo }}" readonly>
+                </div>
+
+            </div>
 
         </div>
-        <div class="card-body">
-            <span class="h5 text-danger">{{ error }}</span>
-            <hr>
-            <form action="{% url 'modificar_pago' form.instance.id %}" method="post" enctype="multipart/form-data">
+
+        <!-- Sección de formulario para modificar el pago registrado, con campos para editar la tasa de cambio, método de pago, monto en dólares y opción para ver o reemplazar el comprobante de pago -->
+        <div class="mb-4">
+            <h4 class=".h4">Pago registrado</h4>
+            <hr class="text-muted mb-4">
+
+            <!-- Mensajes de error del formulario por validación o errores generales -->
+            {% if form.errors or error %}
+                    <div class="alert alert-danger alert-dismissible">
+                        <h5 class="alert-heading">Error al Modificar el Pago</h5>
+                        <button type="button" class="position-absolute top-0 end-0 mt-3 me-3 bg-transparent border-0 p-0" data-bs-dismiss="alert">
+                            <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20">
+                        </button>
+                            
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            {% if error %}
+                                <li>{{ error }}</li>
+                            {% endif %} 
+                        </ul>
+                    </div>
+            {% endif %}
+            
+            <!-- Formulario para modificar el pago -->
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Modificar pago</button>
-                <a href="{% url 'gestion_pagos' %}" class="btn btn-primary">Volver</a>
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1">Fecha de registro de pago</label>
+                        <input type="text" class="form-control bg-light" value="{{ fecha|date:'d/m/Y H:i' }}" readonly>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1">Tasa de cambio</label>
+                        {{ form.tasa}}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1">Metodo de pago</label>
+                        {{ form.metodo }}
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1">Monto ($)</label>
+                        {{ form.montoUSD }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1"> Comprobante </label>
+                        <div>
+                            <!-- Botón para abrir el modal que muestra el comprobante de pago actual y permite reemplazarlo por otro archivo -->
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#comprobanteModal">
+                                Ver / Reemplazar comprobante
+                            </button>
+                        </div>
+
+                        <!-- Se incluye el modal para mostrar el comprobante de pago actual y permitir su reemplazo -->
+                        {% include 'modals/comprobanteM.html' %}
+                    </div>
+                </div>
+
+                <!-- Botón para enviar el formulario y guardar los cambios realizados en el pago registrado -->
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success">Confirmar</button>
+                </div>
             </form>
         </div>
+
+
     </div>
-{% endblock %}
+
+
+{% endblock %} 

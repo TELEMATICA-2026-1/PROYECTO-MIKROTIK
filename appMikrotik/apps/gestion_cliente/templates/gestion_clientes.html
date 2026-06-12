@@ -3,12 +3,14 @@
 
 {% block title %}Gestión de Clientes{% endblock %}
 
+<!-- Breadcrumb/barra de navegacion específico para la pagina principal de Gestion de Clientes -->
 {% block breadcrumb_items %}
     <li class="breadcrumb-item">Gestión de Clientes</li>
 {% endblock %}
 
 {% block content_page %}
 
+    <!-- Encabezado y botón para crear nuevo cliente -->
     <div class="mb-3">
         <span class="h1">Gestión de Clientes</span>
         <div class="card-header d-flex justify-content-between align-items-center mb-1">
@@ -26,12 +28,12 @@
 
     <!-- Tabla para los clientes -->
     <div class="table-responsive card">
-        <!-- cabecera de la tabla y filtros para buscar -->
+        <!-- Cabecera de la tabla y filtros para buscar -->
         <div class="card-header">
             <form method="post">
                 {% csrf_token %}
                 <div class="row align-items-center">
-                    <!--contenedor del titulo-->
+                    <!--Contenedor del titulo-->
                     <div class="col-md-3 align-items-center">
                         <h3 class="card-title h3 mb-0 tabla-header-title">Clientes activos</h3>
                     </div>
@@ -39,14 +41,9 @@
                     <!-- contenedor de los filtros y busqueda-->
                     <div class="col-md-9">
                         <div class="d-flex justify-content-end align-items-center flex-wrap">
-                            <!--ACA VA FILTRO PARA BUSCAR CLIENTES POR NOMBRE O RIF-->
+                            <!--Filtro para buscar clientes por nombre o RIF-->
                             <div class="me-3 text-nowrap">
-                                <input
-                                    type="text"
-                                    name="nombreCliente"
-                                    class="form-control tabla-input"
-                                    placeholder="Nombre o RIF del cliente"
-                                >
+                                {{ filtros.nombreCliente }}
                             </div>
                             <!--boton buscar-->
                             <div class="me-3 text-nowrap"> 
@@ -55,32 +52,26 @@
                                 </button>
                             </div>
         
-        
+                            <!-- Filtro para buscar clientes por estado -->
                             <div class="me-2 text-nowrap">
                                 <label class="text-nowrap">Estado</label>
                             </div>
-        
                             <div class="text-nowrap">
-                                <!--ACA VA FILTRO PARA BUSCAR CLIENTES POR ESTADO-->
-                                <select name="estado" class="form-select form-select-sm">
-                                    <option value="">Todos</option>
-                                    <option value="Solvente">Solvente</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Desconectado">Desconectado</option>
-                                </select>
+                                {{ filtros.estado }}
                             </div>     
                         </div>
                     </div>
                 </div>
             </form>   
         </div>
-      
+        
+        <!-- Cuerpo de la tabla con los clientes -->
         <div class="card-body">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">RIF</th>
-                        <th scope="col">Nombre</th>
+                        <th scope="col">Cedula/ RIF</th>
+                        <th scope="col">Nombre</th>  
                         <th scope="col">Direccion</th>
                         <th scope="col">Estado</th>
                         <th scope="col" class="acciones-col">Acciones</th>
@@ -88,12 +79,14 @@
                 </thead>
                 <tbody>
                     {% if clientes %}
+                        <!-- Iterar sobre los clientes y mostrar sus datos en la tabla -->
                         {% for cliente in clientes %}
                             <tr>
                                 <td>{{ cliente.cedula }}</td>
                                 <td>{{ cliente.nombre }}</td>
                                 <td>{{ cliente.direccion | truncatechars:200 }}</td>
                                 <td>
+                                    <!-- Mostrar el estado del cliente con un badge de color -->
                                     {% if cliente.estado == 'Solvente' %}
                                         <span class="badge bg-success">Solvente</span>
                                     {% elif cliente.estado == 'Pendiente' %}
@@ -105,15 +98,16 @@
                                     {% endif %}
                                 </td>
                                 <td class="acciones-col text-nowrap">
+                                    <!-- Botones para ver detalles, editar y eliminar/desactivar cliente -->
                                     <div class="d-flex flex-nowrap align-items-center gap-1">
                                         <a
                                             name=""
                                             id=""
                                             title="Ver detalles de cliente"
                                             class="btn btn-sm"
-                                            href="#"
+                                            href="{% url 'detalles_cliente' cliente.id %}"
                                             role="button"
-                                            ><img src="{% static 'images/ver_detalles.svg' %}" alt="" width="20" height="20"></a
+                                           ><img src="{% static 'images/ver_detalles.svg' %}" alt="" width="20" height="20"></a
                                         >
                                         <a
                                             name=""
@@ -124,20 +118,24 @@
                                             role="button"
                                             ><img src="{% static 'images/editar.svg' %}" alt="" width="20" height="20"></a
                                         >
-                                        <a
-                                            name=""
-                                            id=""
-                                            title="Desactivar cliente"
+                                        <!-- El botón de eliminar/desactivar cliente ahora abre un modal de confirmación -->
+                                        <button
+                                            type="button"
                                             class="btn btn-sm"
-                                            href="{% url 'confirmar_borrado' cliente.id %}"
-                                            role="button"
-                                            ><img src="{% static 'images/papelera_cliente.svg' %}" alt="" width="20" height="20">
-                                        </a>
+                                            title="Desactivar cliente"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmarBorradoModal"
+                                            data-delete-url="{% url 'confirmar_borrado' cliente.id %}"
+                                            data-client-name="{{ cliente.nombre }}"
+                                        >
+                                            <img src="{% static 'images/papelera_cliente.svg' %}" alt="" width="20" height="20">
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         {% endfor %}
                     {% else %}
+                        <!-- Mostrar un mensaje cuando no hay clientes para mostrar -->
                         <tr>
                             <td colspan="9" class="text-center">
                                 Sin resultados para mostrar
@@ -146,8 +144,11 @@
                     {% endif %}
                 </tbody>
             </table>
+            <!-- Incluir el modal de confirmación de eliminación/desactivación de cliente -->
+            {% include 'modals/confirmar_borrar.html' %}
         </div>
 
+        <!-- Pie de página con la paginación, para no sobrecargar la página -->
         <div class="card-footer">
             {% if clientes.has_other_pages %}
                 <nav aria-label="Paginación de clientes">
@@ -184,4 +185,9 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Script para manejar la lógica del modal de confirmación de eliminación/desactivación de cliente -->
+<script src="{% static 'js/borrarCliente.js' %}"></script>
 {% endblock %}

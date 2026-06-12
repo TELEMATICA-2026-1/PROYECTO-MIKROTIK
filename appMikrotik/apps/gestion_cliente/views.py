@@ -1,28 +1,69 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from core.models import Cliente, Logs, Factura
-from .forms import ClienteForm
+from core.models import Cliente, Logs
+from .forms import ClienteForm, FiltroClientes
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDay
 from datetime import timedelta
+from django.core.paginator import Paginator
+from core.autenticacion import grupo_requerido
 
-def gestion_cliente(request,id):
-    if id == 0:
-        objetos = Cliente.objects.filter(borrado = False)
-    else:
-        objetos = Cliente.objects.filter(idCliente=id, borrado = False)
-
-    return render(request, 'gestion_clientes.html', {'clientes': objetos}) 
-
+# Este metodo se encarga de mostrar la lista de clientes registrados, 
+# con la posibilidad de aplicar filtros por nombre del cliente y cedula.
 @login_required
+@grupo_requerido('asistente_administrativo')
+def gestion_cliente(request):
+    todos_clientes = Cliente.objects.filter(borrado=False).order_by('nombre')
+
+    if request.method == 'POST':
+        filtro = FiltroClientes(request.POST)
+        if filtro.is_valid():
+            nombreCliente = filtro.cleaned_data.get('nombreCliente')
+            estado_seleccionado = filtro.cleaned_data.get('estado')
+
+            # Filtro por texto (Nombre O Cédula)
+            if nombreCliente:
+                nombreCliente = nombreCliente.strip()
+                todos_clientes = todos_clientes.filter(
+                    Q(nombre__icontains=nombreCliente) | 
+                    Q(cedula__icontains=nombreCliente)
+                )
+
+            if estado_seleccionado:
+                todos_clientes = todos_clientes.filter(estado=estado_seleccionado)
+    else:
+        filtro = FiltroClientes()
+
+    paginator = Paginator(todos_clientes, 10)
+    
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        del query_params['page']
+    
+    page_number = request.GET.get('page')
+    clientes = paginator.get_page(page_number)
+        
+    return render(request, 'gestion_clientes.html', {
+        'clientes': clientes, 
+        'filtros': filtro, 
+        'query_string': query_params.urlencode() 
+    })
+
+
+# Este metodo se encarga de registrar un nuevo cliente, 
+#si las entradas son validas, actualizamos el saldo del cliente, su estado (pendiente o exonerado) y la fecha. 
+# Registra un log detallado del nuevo cliente registrado.
+@login_required
+@grupo_requerido('asistente_administrativo')
 def crear_cliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST, request.FILES)
         if form.is_valid():
             
             cliente = form.save(commit=False)
+            cliente.fecha = timezone.now()
 
             if form.cleaned_data.get('exonerar_cliente'):
                 cliente.estado = 'Exonerado'
@@ -32,13 +73,7 @@ def crear_cliente(request):
                 cliente.saldo = cliente.idPlan.precioUSD 
                 cliente.borrado = False       
             
-            cliente.save() 
-
-            Factura.objects.create(
-                idCliente = cliente,
-                montoUSD = cliente.idPlan.precioUSD + 40,  #Costo de instalacion en 40$
-                fecha=timezone.now()
-            )   
+            cliente.save()   
 
             Logs.objects.create(
                 idPersonal=request.user,
@@ -56,14 +91,17 @@ def crear_cliente(request):
                 fecha=timezone.now()
             )
 
-            return redirect('gestion_clientes', 0) 
+            return redirect('gestion_clientes') 
     else:
         form = ClienteForm() 
 
     return render(request, 'crear_cliente.html', {'form': form})
 
-
+# Este metodo se encarga de modificar un cliente existente, 
+# si las entradas son validas, actualizamos el saldo del cliente, su estado (pendiente o exonerado) y la fecha. 
+# Registra un log detallado del nuevo cliente registrado.
 @login_required
+@grupo_requerido('asistente_administrativo')
 def modificar_cliente(request, id):
     cliente = get_object_or_404(Cliente, id=id)
 
@@ -109,14 +147,18 @@ def modificar_cliente(request, id):
                 fecha=timezone.now()
             )
 
-            return redirect('gestion_clientes', 0)
+            return redirect('gestion_clientes')
             
     else:
         form = ClienteForm(instance=cliente)
         
     return render(request, 'modificar_cliente.html', {'form': form, 'cliente': cliente})
 
+# Este metodo se encarga de borrar un cliente existente, 
+# si las entradas son validas, actualizamos su estado de borrado logico y lo cambiamos a TRUE, esto pondra al cliente como eliminado. 
+# Registra un log detallado del nuevo cliente registrado.
 @login_required
+@grupo_requerido('asistente_administrativo')
 def borrar_cliente(request, id):
     cliente = get_object_or_404(Cliente, id=id)
 
@@ -207,3 +249,11 @@ def api_graficos_dashboard(request):
     }
 
     return JsonResponse(json_final, json_dumps_params={'ensure_ascii': False})
+
+# Este metodo se encarga de mostrar la informacion detallada de un cliente especifico,
+# cargando tanto sus datos personales como los del servicio contratado de forma de solo lectura.
+@login_required
+@grupo_requerido('asistente_administrativo')
+def detalles_cliente(request, id):
+    cliente = get_object_or_404(Cliente, id=id)
+    return render(request, 'detalles_cliente.html', {'cliente': cliente})

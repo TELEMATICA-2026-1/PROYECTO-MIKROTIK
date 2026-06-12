@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'reportes',
     'django_cleanup.apps.CleanupConfig',
     'bootstrap',
+    'control_morosidad',
 ]
 
 MIDDLEWARE = [

@@ -2,14 +2,17 @@
 
 {% block title %}Detalles del Pago{% endblock %}
 
+<!-- Breadcrumbs para navegación que muestra la ruta de navegación dentro de la aplicación -->
 {% block breadcrumb_items %}
 <li class="breadcrumb-item"><a href="{% url 'gestion_pagos' %}">Gestión de Pagos</a></li>
 <li class="breadcrumb-item active">Detalles del Pago</li>
 {% endblock %}
 
 {% block content_page %}
+    <!-- Contenedor principal de la página con información del cliente y detalles del pago registrado -->
     <div class="container p-4  bg-white ">
 
+        <!-- Sección de información del cliente con campos de solo lectura para mostrar los datos relevantes del cliente -->
         <div class="mb-4">
             <h4 class=".h4">Detalles del Cliente</h4>
             <hr class="text-muted mb-4">
@@ -33,6 +36,7 @@
 
         </div>
 
+        <!-- Sección de detalles del pago registrado, mostrando información relevante del pago -->
         <div class="mb-4">
             <h4 class=".h4">Detalles de Pago</h4>
             <hr class="text-muted mb-4">
@@ -72,6 +76,7 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <label class="form-label fst-italic text-muted small mb-1">Comprobante</label>
+                    <!-- Si existe un comprobante asociado al pago, muestra un botón para visualizarlo en un modal; de lo contrario, muestra un mensaje indicando que no hay comprobante -->
                     <div>
                         {% if pago.comprobante %}
                             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#comprobanteModal"  data-titulo="Comprobante de Pago">
@@ -83,6 +88,7 @@
                     </div>
 
                     {% if pago.comprobante %}
+                        <!-- Se incluye el modal para mostrar el comprobante de pago, pasando la instancia del formulario para acceder al comprobante asociado al pago -->
                         {% include 'modals/comprobante.html' %}
                     {% endif %}
                 </div>

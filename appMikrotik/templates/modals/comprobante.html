@@ -1,10 +1,16 @@
+{% load static %}
+<!-- Modal para mostrar el comprobante de pago asociado a un pago registrado, con la opción de reemplazarlo por otro archivo si es necesario -->
 <div class="modal fade" id="comprobanteModal" tabindex="-1" aria-labelledby="comprobanteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fluid modal-dialog-centered">
         <div class="modal-content">
+            <!-- Encabezado del modal con título y botón de cierre -->
             <div class="modal-header">
                 <h5 class="modal-title" id="comprobanteModalLabel">Comprobante de Pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" data-bs-dismiss="modal" aria-label="Cerrar" class="bg-transparent border-0 ms-auto p-0">
+                    <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20" >
+                </button>
             </div>
+            <!-- Cuerpo del modal que muestra la imagen del comprobante de pago -->
             <div class="modal-body">
                 <img id="comprobanteImage" src="{{ pago.comprobante.url }}" alt="Comprobante de Pago" class="img-fluid">
                 

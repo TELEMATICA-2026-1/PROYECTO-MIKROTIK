@@ -22,7 +22,7 @@ class Plan(models.Model):
     borrado = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.plan} | {self.precioUSD}$ | {self.velocidad_subida}MB | {self.velocidad_bajada}MB"
+        return f"{self.plan}"
     
 class Cliente(models.Model):
     class SeleccionEstado(models.TextChoices):

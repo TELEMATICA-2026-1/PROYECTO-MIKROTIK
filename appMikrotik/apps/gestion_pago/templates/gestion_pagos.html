@@ -3,11 +3,13 @@
 
 {% block title %} Gestión de Pagos {% endblock %}
 
+<!-- Breadcrumbs para navegación que muestra la ruta de navegación dentro de la aplicación-->
 {% block breadcrumb_items %}
     <li class="breadcrumb-item">Gestión de Pagos</li>
 {% endblock %}
 
 {% block content_page %}    
+    <!-- Encabezado de la página con título y botón para crear un nuevo pago -->
     <div class="mb-3">
         <span class="h1">Gestión de Pagos</span>
         <div class="card-header d-flex justify-content-between align-items-center mb-1">
@@ -16,7 +18,7 @@
                 name=""
                 id=""
                 class="btn btn-success justify-content-end"
-                href=""
+                href="{% url 'pagos_pendientes' %}"
                 role="button"
                 >Nuevo pago</a
             >
@@ -35,13 +37,13 @@
                         <span>{{ filtros.fecha_inicio }}</span>
                         <label for="fecha_fin" class="text-nowrap"> Hasta </label>
                         <span>{{ filtros.fecha_fin }}</span>
-                        <!-- buscar por nombr o cedula  -->
+                        <!-- buscar por nombre o cedula  -->
                         {{ filtros.nombreCliente }}
-                        <!-- buscar -->
+                        <!-- botón de búsqueda -->
                         <button class="btn btn-sm btn-outline-dark" type="submit">
                             <img src="{% static 'images/busqueda.svg' %}" alt="Buscar" title="Aplicar filtros y buscar" width="20" height="20">
                         </button>
-                        <!-- imprimir -->
+                        <!-- botón de impresión -->
                         <button class="btn btn-sm btn-outline-dark" type="button">
                             <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" title="Imprimir" width="20" height="20">
                         </button>
@@ -49,6 +51,7 @@
                 </form>
             </form>
         </div>
+        <!-- cuerpo de la tabla con los datos de los pagos registrados -->
         <div class="card-body">
             <table class="table table-hover">
                 <thead>
@@ -69,6 +72,7 @@
                                 <td>{{ pago.idCliente.nombre }}</td>
                                 <td>{{ pago.montoUSD }}</td>
                                 <td class="acciones-col text-nowrap">
+                                    <!-- Botones para editar el pago o ver sus detalles, con íconos representativos -->
                                     <a
                                         name=""
                                         id=""
@@ -93,6 +97,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
+                            <!-- Si no hay pagos registrados, mostrar un mensaje indicando que no hay resultados para mostrar -->
                             <td colspan="9" class="text-center">
                                 Sin resultados para mostrar
                             </td>
@@ -101,6 +106,7 @@
                 </tbody>
             </table>
         </div>
+        <!-- pie de la tarjeta con paginación para navegar entre las páginas de resultados si hay más muchos pagos registrados -->
         <div class="card-footer">
             {% if pagos.has_other_pages %}
                 <nav aria-label="Paginación de pagos">
