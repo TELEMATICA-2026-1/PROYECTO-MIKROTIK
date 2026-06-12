@@ -3,6 +3,10 @@ from django.utils import timezone
 from core.models import Cliente, Logs, Factura
 from .forms import ClienteForm
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDay
+from datetime import timedelta
 
 def gestion_cliente(request,id):
     if id == 0:
@@ -139,5 +143,67 @@ def borrar_cliente(request, id):
             )
         
         return redirect('gestion_clientes', 0)
-        
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
+
+def api_tarjetas_dashboard(request):
+    
+    solventes = Cliente.objects.filter(estado='Solvente', borrado=False).count()
+    exonerados = Cliente.objects.filter(estado='Exonerado', borrado=False).count()
+    pendientes = Cliente.objects.filter(estado='Pendiente', borrado=False).count()
+    desconectados = Cliente.objects.filter(estado='Desconectado', borrado=False).count()
+    
+    data = {
+        'solventes': solventes,
+        'exonerados': exonerados,
+        'pendientes': pendientes,
+        'desconectados': desconectados,
+    }
+    
+    return JsonResponse(data)
+
+def api_graficos_dashboard(request):
+    hace_7_dias = timezone.now() - timedelta(days=7)
+    
+    logs_query = (
+        Logs.objects.filter(fecha__gte=hace_7_dias)
+        .annotate(dia=TruncDay('fecha'))
+        .values('dia')
+        .annotate(
+            exitos=Count('id', filter=Q(error=False)),
+            errores=Count('id', filter=Q(error=True))
+        )
+        .order_by('dia')
+    )
+    
+    labels_logs = []
+    series_exitos = []
+    series_errores = []
+    
+    dias_es = {
+        'Mon': 'Lun', 'Tue': 'Mar', 'Wed': 'Mie', 
+        'Thu': 'Jue', 'Fri': 'Vie', 'Sat': 'Sab', 'Sun': 'Dom'
+    }
+    
+    for log in logs_query:
+        dia_en = log['dia'].strftime('%a')
+        labels_logs.append(dias_es.get(dia_en, dia_en))
+        series_exitos.append(log['exitos'])
+        series_errores.append(log['errores'])
+
+        cobranzas_query = (
+             Cliente.objects.filter(borrado=False)
+             .values('estado')
+            .annotate(total=Count('id'))
+    )
+    
+    distribucion_cobranzas = {item['estado']: item['total'] for item in cobranzas_query}
+    json_final = {
+        'historico_logs': {
+            'labels': labels_logs,
+            'exitos': series_exitos,
+            'errores': series_errores
+        },
+        'estado_cobranzas': distribucion_cobranzas
+    }
+
+    return JsonResponse(json_final, json_dumps_params={'ensure_ascii': False})
