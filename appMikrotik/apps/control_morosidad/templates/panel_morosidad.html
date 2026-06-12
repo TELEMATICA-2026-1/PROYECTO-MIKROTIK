@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Morosidad{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item active">Panel de Morosidad</li>
+{% endblock %}
+
+{% block content_page %}
+<div class="container p-4 bg-white">
+    <div class="mb-4">
+        <h3 class="mb-2">Panel de Control de Morosidad</h3>
+        <p class="text-muted">Este panel permite ver y editar la configuración de morosidad, ejecutar una evaluación manual y generar facturas del mes.</p>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Configuración actual</h5>
+                    <p class="card-text mb-2"><strong>Días de gracia:</strong> {{ config.diasGracia }}</p>
+                    <p class="card-text mb-0"><strong>Día de cobro mensual:</strong> {{ config.diaCobroMensual }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Acciones</h5>
+                    <p class="card-text text-muted">Ejecuta la rutina manualmente o genera las facturas del mes cuando corresponda.</p>
+                    <form method="post" action="{% url 'panelMorosidad' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" name="ejecutarAhora" class="btn btn-warning me-2">Evaluar morosidad</button>
+                    </form>
+                    <form method="post" action="{% url 'generarFacturas' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Generar facturas</button>
+                    </form>
+                    <a href="{% url 'evaluarMorosidad' %}" class="btn btn-outline-secondary d-block mt-3">Ver resultado de evaluación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Ajustar parámetros de morosidad</h5>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_diasGracia" class="form-label">Días de gracia</label>
+                        {{ form.diasGracia }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_diaCobroMensual" class="form-label">Día de cobro mensual</label>
+                        {{ form.diaCobroMensual }}
+                    </div>
+                </div>
+                <button type="submit" name="guardarConfig" class="btn btn-primary">Guardar configuración</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
