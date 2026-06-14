@@ -27,9 +27,9 @@ def calcularMontoProrrateado(cliente, fechaFactura):
         return cliente.idPlan.precioUSD
     #calculamos dias desde el registro hasta el fin de mes
     diaRegistro = fechaRegistro.day
-    diasRestantes = calendar.monthrange(fechaRegistro.year, fechaRegistro.month)[1] -(diaRegistro -1)
+    diasRestantes = calendar.monthrange(fechaFactura.year, fechaFactura.month)[1] -(diaRegistro -1)
     
-    monto = (diasRestantes/calendar.monthrange(fechaRegistro.year, fechaRegistro.month)[1])*cliente.idPlan.precioUSD
+    monto = (diasRestantes/calendar.monthrange(fechaFactura.year, fechaFactura.month)[1])*cliente.idPlan.precioUSD
     return round(monto, 2)
 
 def generarFacturaParaCliente(cliente, fechaFactura):
