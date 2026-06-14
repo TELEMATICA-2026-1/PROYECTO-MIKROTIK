@@ -2,11 +2,13 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Sum, Count
 from django.db.models.functions import ExtractMonth
+from django.contrib.auth.decorators import login_required
 
 # Importamos los modelos de la app core
-from core.models import Pago, Cliente, Plan, Logs
+from core.models import Pago, Cliente, Logs
 
 # 1. Vista de la interfaz HTML (Carga el cascarón de la página rápido)
+@login_required
 def gestion_reportes(request):
     return render(request, 'gestion_reportes.html')
 
