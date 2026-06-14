@@ -125,7 +125,7 @@ def generarFacturasView(request):
         total = generarFacturasDelMes()
         Logs.objects.create(
             idPersonal=request.user,
-            mensaje= total if total else "Ejecucion manual de morosidad sin cambios",
+            mensaje= "\n".join(str(item) for item in total) if total else "Ejecucion manual de morosidad sin cambios",
             modulo= "Control Morosidad",
             error= False
         )
@@ -162,28 +162,28 @@ def evaluarMorosidadView(request):
     if desconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= desconexiones, 
+        mensaje= "\n".join(str(item) for item in desconexiones), 
         modulo="Control Morosidad",
         error=False
         )   
     if errorDesconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= errorDesconexiones, 
+        mensaje= "\n".join(str(item) for item in errorDesconexiones), 
         modulo="Control Morosidad",
         error=True
         )
     if reconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= reconexiones, 
+        mensaje= "\n".join(str(item) for item in reconexiones), 
         modulo="Control Morosidad",
         error=False
         )
     if errorReconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= errorReconexiones, 
+        mensaje= "\n".join(str(item) for item in errorReconexiones), 
         modulo="Control Morosidad",
         error=True
         )
