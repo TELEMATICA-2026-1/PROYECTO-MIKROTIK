@@ -67,10 +67,8 @@ def crear_cliente(request):
 
             if form.cleaned_data.get('exonerar_cliente'):
                 cliente.estado = 'Exonerado'
-            
             else:
-                cliente.estado = 'Pendiente'         
-                cliente.saldo = cliente.idPlan.precioUSD 
+                cliente.estado = 'Solvente'         
                 cliente.borrado = False       
             
             cliente.save()   
