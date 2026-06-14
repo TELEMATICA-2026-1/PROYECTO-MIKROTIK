@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 # Cada ruta está asociada a una vista correspondiente que maneja la lógica de cada funcionalidad.
 
 urlpatterns = [
-    path('gestion_pagos/', views.gestion_pago, name='gestion_pagos'),
+    path('gestion_pagos/<int:id>/', views.gestion_pago, name='gestion_pagos'),
     path('crear_pago/<int:id>/', views.crear_pago, name='crear_pago'),
     path('modificar_pago/<int:id>/', views.modificar_pago, name='modificar_pago'),
     path('detalles_pago/<int:id>/', views.mostrar_detalles, name='detalles_pago'),
