@@ -66,6 +66,8 @@ def crear_pago(request,id):
 
         if form.is_valid():
             montoUSD = form.cleaned_data.get('montoUSD')
+            fecha = form.cleaned_data.get('fecha')
+            cliente.fecha = fecha
             cliente.saldo -= montoUSD
 
             if cliente.saldo < 0:
