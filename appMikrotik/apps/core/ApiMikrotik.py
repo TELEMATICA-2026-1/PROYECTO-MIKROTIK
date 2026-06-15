@@ -2,7 +2,6 @@ import routeros_api
 from django.conf import settings
 from .models import Logs
 from django.contrib.auth.models import User
-from django.core.validators import validate_ipv4_address
 from django.core.exceptions import ValidationError
 
 def obtenerConexionMikroti():
@@ -30,12 +29,6 @@ def obtenerConexionMikroti():
         raise e
 
 def suspenderCliente(direccionIp):
-    try:
-        validate_ipv4_address(direccionIp)
-    except ValidationError:
-        raise ValueError(f"La dirección {direccionIp} no tiene un formato IPv4 válido.")
-    if not direccionIp or str(direccionIp).strip() == "":
-        raise ValueError("La dirección IP no puede estar vacía")
         
     # Aplica una regla de firewall para bloquear una IP especifica 
     api, conexion = obtenerConexionMikroti()
@@ -46,18 +39,11 @@ def suspenderCliente(direccionIp):
             listaDirecciones.add(list='suspendidos', address=direccionIp, comment='Suspendido por morosidad')
         return True
     except Exception as e:
-        raise e
+        return False
     finally:
         conexion.disconnect()
 
 def reconectarCliente(direccionIp):
-    try:
-        validate_ipv4_address(direccionIp)
-    except ValidationError:
-        raise ValueError(f"La dirección {direccionIp} no tiene un formato IPv4 válido.")
-    if not direccionIp or str(direccionIp).strip() == "":
-        raise ValueError("La dirección IP no puede estar vacía")
-
     #Elimina la regla de firewall que bloqueaba a la IP especifica
     api, conexion = obtenerConexionMikroti()
     try:
@@ -67,7 +53,7 @@ def reconectarCliente(direccionIp):
             listaDirecciones.remove(id=item['id'])
         return True
     except Exception as e:
-        raise e
+        return False
     finally:
         conexion.disconnect()
         
