@@ -14,8 +14,12 @@ from core.autenticacion import grupo_requerido
 # con la posibilidad de aplicar filtros por nombre del cliente y rango de fechas.
 @login_required
 @grupo_requerido('asistente_administrativo')
-def gestion_pago(request):
-    todos_pagos = Pago.objects.all().order_by('-fecha')
+def gestion_pago(request,id):
+
+    if id != 0:
+        todos_pagos = Pago.objects.filter(idCliente__id=id).order_by('-fecha')
+    else:
+        todos_pagos = Pago.objects.all().order_by('-fecha')
 
     if request.method == 'POST':
         filtro = FiltroPagos(request.POST)
@@ -62,6 +66,8 @@ def crear_pago(request,id):
 
         if form.is_valid():
             montoUSD = form.cleaned_data.get('montoUSD')
+            fecha = form.cleaned_data.get('fecha')
+            cliente.fecha = fecha
             cliente.saldo -= montoUSD
 
             if cliente.saldo < 0:
@@ -92,7 +98,7 @@ Tasa: {nuevo_pago.tasa}""",
                 fecha = timezone.now()
             )
 
-            return redirect('gestion_pagos')
+            return redirect('gestion_pagos',0)
     else:
         form = PagoForm()
     
@@ -154,7 +160,7 @@ def modificar_pago(request, id):
             else:
                 mensaje_log = f"El operador guardó al pago (ID: {pago.id}) sin realizar cambios."
             
-            pago.save()
+            pago.save(update_fields=['montoUSD', 'tasa', 'comprobante', 'metodo'])
             form.save_m2m()
             
             Logs.objects.create(
@@ -165,7 +171,7 @@ def modificar_pago(request, id):
                 fecha = timezone.now()
             )
             
-            return redirect('gestion_pagos')
+            return redirect('gestion_pagos',0)
     else:
         form = PagoForm(instance=pago)
         

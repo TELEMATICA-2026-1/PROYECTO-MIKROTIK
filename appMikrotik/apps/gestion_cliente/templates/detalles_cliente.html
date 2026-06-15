@@ -96,7 +96,7 @@
 
             <!-- Botón para redireccionar a un usuario al historial de pagos donde podrá observar todos los pagos realizados por ese usuario en específico -->
             <div class="d-flex justify-content-center">
-                <a href="{% url 'gestion_pagos' %}" class="btn btn-success">Histórico de pagos</a>
+                <a href="{% url 'gestion_pagos' cliente.id %}" class="btn btn-success">Histórico de pagos</a>
             </div>
 
         </div>

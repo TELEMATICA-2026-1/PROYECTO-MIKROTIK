@@ -5,7 +5,7 @@
 
 <!-- Breadcrumbs para navegación que muestra la ruta de navegación dentro de la aplicación-->
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{% url 'gestion_pagos' %}">Gestión de Pagos</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'gestion_pagos' 0 %}">Gestión de Pagos</a></li>
     <li class="breadcrumb-item"><a href="{% url 'pagos_pendientes' %}">Seleccionar Abonado</a></li>
     <li class="breadcrumb-item active">Crear Pago</li>
 {% endblock %}
