@@ -98,7 +98,7 @@ Tasa: {nuevo_pago.tasa}""",
                 fecha = timezone.now()
             )
 
-            return redirect('gestion_pagos')
+            return redirect('gestion_pagos',0)
     else:
         form = PagoForm()
     
@@ -171,7 +171,7 @@ def modificar_pago(request, id):
                 fecha = timezone.now()
             )
             
-            return redirect('gestion_pagos')
+            return redirect('gestion_pagos',0)
     else:
         form = PagoForm(instance=pago)
         
