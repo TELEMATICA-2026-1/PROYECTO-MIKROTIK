@@ -38,7 +38,7 @@
                 {% endif %}
                 {% if user.is_superuser or 'soporte' in user.groups.all|join:"," %}
                 <li class="nav-item">
-                    <a href="{% url 'panelMorosidad' %}" class="nav-link text-dark d-flex align-items-center" title="Morosidad">
+                    <a href="#" class="nav-link text-dark d-flex align-items-center" title="Morosidad">
                         <img src="{% static 'images/morosidad.svg' %}" alt="Morosidad" width="20" height="20">
                         <span class="sidebar-text text-dark menu-text collapse show">Morosidad</span>
                     </a>
