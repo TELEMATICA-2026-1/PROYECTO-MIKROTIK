@@ -12,12 +12,6 @@ class ConfiguracionMorosidadForm(forms.ModelForm):
         }
     
     #validaciones para asegurar que los valores ingresados sean validos, aunque el widget ya limita el rango, esto es una capa adicional de seguridad
-    def clean_diaCobroMensual(self):
-        diaCobro = self.cleaned_data['diaCobroMensual']
-        if diaCobro < 1 or diaCobro > 28:
-            raise forms.ValidationError("El día de cobro mensual debe estar entre 1 y 28.")
-        return diaCobro
-    
     def clean_diasGracia(self):
         diasGracia = self.cleaned_data['diasGracia']
         if diasGracia < 1 or diasGracia > 30:
