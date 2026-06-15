@@ -18,4 +18,12 @@ class ConfiguracionMorosidadForm(forms.ModelForm):
             raise forms.ValidationError("Los días de gracia deben estar entre 1 y 30.")
         return diasGracia
     
-    
+class FiltroClientesMorosos(forms.Form):
+    nombreCliente = forms.CharField(
+        label='Nombre del Cliente',
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nombre o cédula del cliente',
+            'class': 'form-control tabla-input'
+        }))
