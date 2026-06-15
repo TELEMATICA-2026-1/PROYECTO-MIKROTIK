@@ -23,5 +23,4 @@ urlpatterns = [
     path('', include('apps.gestion_pago.urls')),
     path('', include('apps.gestion_cliente.urls')),
     path('', include('apps.reportes.urls')),
-    path('', include('control_morosidad.urls')),
 ]
