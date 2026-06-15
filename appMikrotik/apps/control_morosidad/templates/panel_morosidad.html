@@ -1,18 +1,43 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Panel de Morosidad{% endblock %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item active">Panel de Morosidad</li>
+    <li class="breadcrumb-item active">Gestión Morosidad</li>
 {% endblock %}
 
 {% block content_page %}
-<div class="container p-4 bg-white">
-    <div class="mb-4">
-        <h3 class="mb-2">Panel de Control de Morosidad</h3>
+
+    <!--Titulo de la vista principal-->
+    <div class="mb-3">
+        <span class="h1">Panel de Control de Morosidad</span>
         <p class="text-muted">Este panel permite ver y editar la configuración de morosidad, ejecutar una evaluación manual y generar facturas del mes.</p>
     </div>
 
+    <!--Contenedor con tarjeta para mostrar la configuración actual de Morosidad y boton para establecer una nueva configuración-->
+    <div class="mb-3">
+        <div class="row g-4 justify-content-between align-items-center"">
+            <div class="col-md-3">
+                <div class="card border-0">
+                    <div class="card-body p-0">
+                        <p class="card-text mb-2"><strong>Día de cobro mensual:</strong> {{ config.diaCobroMensual }}</p>
+                        <p class="card-text mb-0"><strong>Días maximos de Pagos:</strong> {{ config.diasGracia }}</p>
+                    </div>
+                </div>
+            </div>
+
+           <div class="col-md-3 text-end">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarConfig"  data-titulo="Configuración Morosidad">
+                    Nueva Configuración 
+                </button>
+
+                {% include 'modals/configuracionNueva.html' %}
+           </div>
+        </div>
+    </div>
+
+    <!--Para mensajes Emergentes-->
     {% if messages %}
         <div class="mb-4">
             {% for message in messages %}
@@ -24,16 +49,132 @@
         </div>
     {% endif %}
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Configuración actual</h5>
-                    <p class="card-text mb-2"><strong>Días de gracia:</strong> {{ config.diasGracia }}</p>
-                    <p class="card-text mb-0"><strong>Día de cobro mensual:</strong> {{ config.diaCobroMensual }}</p>
+
+    <!--Tabla con lista de clientes-->
+        <div class="table-responsive card">
+        <!-- Cabecera de la tabla y filtros para buscar -->
+        <div class="card-header">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row align-items-center">
+                    <!--Contenedor del titulo-->
+                    <div class="col-md-3 align-items-center">
+                        <h3 class="card-title h3 mb-0 tabla-header-title">Listado de Clientes</h3>
+                    </div>
+                
+                    <!-- contenedor de los filtros y busqueda-->
+                    <div class="col-md-9">
+                        <div class="d-flex justify-content-end align-items-center flex-wrap">
+                            <!--Filtro para buscar clientes por nombre o RIF-->
+                            <div class="me-3 text-nowrap">
+                                <!--aqui Filtro para buscar por nombre-->
+                            </div>
+                            <!--boton buscar-->
+                            <div class="me-3 text-nowrap"> 
+                                <button class="btn btn-sm btn-outline-dark" type="submit">
+                                    <img src="{% static 'images/busqueda.svg' %}" alt="Buscar" title="Aplicar filtros y buscar" width="20" height="20">
+                                </button>
+                            </div>     
+                        </div>
+                    </div>
                 </div>
+            </form>   
+        </div>
+        
+        <!-- Cuerpo de la tabla con los clientes -->
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Rif</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Plan</th>
+                        <th scope="col">Estado actual</th>
+                        <th scope="col">Dirección IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if clientes %}
+                        {% for cliente in clientes %}
+
+                            <tr>
+                                <td>{{cliente.cedula}}</td>
+                                <td>{{cliente.nombre}}</td>
+                                <td>{{cliente.idPlan}}</td>
+                                <td>{{cliente.estado}}</td>
+                                <td>{{cliente.direccionIP}}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <!--Sin no existes clientes pendiente se muestra un mensaje sin resultados-->
+                            <td colspan="9" class="text-center">
+                                Sin resultados.
+                            </td>
+                        </tr>
+                    {% endif %}                            
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pie de página con la paginación, para no sobrecargar la página -->
+        <div class="card-footer">
+            <div class="row g-4 mb-3"> 
+                {% if clientes.has_other_pages %}
+                    <nav aria-label="Paginación de clientes">
+                        <ul class="pagination justify-content-center mt-2 mb-0">
+                            {% if clientes.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ clientes.previous_page_number }}{{ query_string }}">Anterior</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                            {% endif %}
+
+                            {% for num in clientes.paginator.page_range %}
+                                {% if clientes.number == num %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{{ query_string }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if clientes.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ clientes.next_page_number }}{{ query_string }}">Siguiente</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                            {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+
+            <div class="row g-4 mt-3 justify-content-center gap-2">
+                <div class="col-md-4 text-center">
+                    <form method="post" action="#" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning me-2">Evaluar morosidad</button>
+                    </form>
+                   
+                    <form method="post" action="#" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Generar facturas</button>
+                    </form>
+                </div>
+
             </div>
         </div>
+    </div>
+
+    <!--
+    <div class="row g-4 mb-4">
+       
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
@@ -72,5 +213,6 @@
             </form>
         </div>
     </div>
-</div>
+    -->
+
 {% endblock %}
