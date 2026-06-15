@@ -101,7 +101,14 @@
                                 <td>{{cliente.cedula}}</td>
                                 <td>{{cliente.nombre}}</td>
                                 <td>{{cliente.idPlan}}</td>
-                                <td>{{cliente.estado}}</td>
+                                <td>
+                                    <!--Se muestra el estado del cliente con un color de fondo segun el estado que poseea -->
+                                    {% if cliente.estado == 'Pendiente' %}
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    {% elif cliente.estado == 'Desconectado' %}
+                                        <span class="badge bg-danger text-dark">Desconectado</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{cliente.direccionIP}}</td>
                             </tr>
                         {% endfor %}
@@ -157,62 +164,17 @@
 
             <div class="row g-4 mt-3 justify-content-center gap-2">
                 <div class="col-md-4 text-center">
-                    <form method="post" action="#" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning me-2">Evaluar morosidad</button>
-                    </form>
-                   
-                    <form method="post" action="#" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success">Generar facturas</button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!--
-    <div class="row g-4 mb-4">
-       
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Acciones</h5>
-                    <p class="card-text text-muted">Ejecuta la rutina manualmente o genera las facturas del mes cuando corresponda.</p>
-                    <form method="post" action="{% url 'panelMorosidad' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" name="ejecutarAhora" class="btn btn-warning me-2">Evaluar morosidad</button>
-                    </form>
+                    
+                    <a href="{% url 'evaluarMorosidad' %}" class="btn btn-warning me-2">Evaluar morosidad</a>
+                    
                     <form method="post" action="{% url 'generarFacturas' %}" class="d-inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success">Generar facturas</button>
                     </form>
-                    <a href="{% url 'evaluarMorosidad' %}" class="btn btn-outline-secondary d-block mt-3">Ver resultado de evaluación</a>
                 </div>
+
             </div>
         </div>
     </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">Ajustar parámetros de morosidad</h5>
-            <form method="post" novalidate>
-                {% csrf_token %}
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="id_diasGracia" class="form-label">Días de gracia</label>
-                        {{ form.diasGracia }}
-                    </div>
-                    <div class="col-md-6">
-                        <label for="id_diaCobroMensual" class="form-label">Día de cobro mensual</label>
-                        {{ form.diaCobroMensual }}
-                    </div>
-                </div>
-                <button type="submit" name="guardarConfig" class="btn btn-primary">Guardar configuración</button>
-            </form>
-        </div>
-    </div>
-    -->
 
 {% endblock %}
