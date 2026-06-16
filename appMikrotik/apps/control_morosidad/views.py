@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
 
-from appMikrotik.apps.gestion_cliente import models
+from django.db import models
 from core.models import Cliente, Factura, Logs
 from core.ApiMikrotik import suspenderCliente, reconectarCliente
 from .models import ConfiguracionMorosidad
