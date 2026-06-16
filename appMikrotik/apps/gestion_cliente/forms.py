@@ -1,7 +1,8 @@
+import ipaddress
 from django.forms import ModelForm, forms, BooleanField
 from core.models import Cliente, Plan
 from django.forms.widgets import CheckboxInput, Select
-import re 
+import re
 from django import forms
 
 class PlanSelectWidget(Select):
@@ -32,6 +33,7 @@ class ClienteForm(ModelForm):
         initial=False
     )
 
+    direccionIP = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
     class Meta:
         model = Cliente
         fields = ['idPlan', 'nombre', 'cedula', 'celular', 'direccion', 'email', 'direccionIP']
@@ -42,7 +44,6 @@ class ClienteForm(ModelForm):
             'celular': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric'}),
             'direccion': forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 3}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'direccionIP': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -92,6 +93,32 @@ class ClienteForm(ModelForm):
                 raise forms.ValidationError("Por favor, introduce una dirección más detallada para el equipo técnico (mínimo 15 caracteres).")
         
         return direccion
+   
+    def clean_direccionIP(self):
+        ip_texto = self.cleaned_data.get('direccionIP')
+        
+        if not ip_texto:
+            raise forms.ValidationError("La dirección IP es obligatoria.")
+            
+        try:
+            ip_ingresada = ipaddress.ip_address(ip_texto.strip())
+            
+            
+            red_permitida = ipaddress.ip_network('192.168.10.0/24', strict=False)
+
+            if ip_ingresada not in red_permitida:
+                raise forms.ValidationError(
+                    f"Dirección IP fuera de rango. Debe pertenecer estrictamente al segmento {red_permitida}."
+                )
+                
+            if ip_ingresada == red_permitida.network_address or ip_ingresada == red_permitida.broadcast_address:
+                raise forms.ValidationError("No se puede asignar la dirección IP de red (.0) o de broadcast (.255).")
+                
+        except ValueError:
+            raise forms.ValidationError("El formato de la dirección IPv4 introducido no es válido.")
+
+        return ip_texto.strip()
+
     
     def clean(self):
         cleaned_data = super().clean()
