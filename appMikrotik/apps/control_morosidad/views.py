@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
+
+from appMikrotik.apps.gestion_cliente import models
 from core.models import Cliente, Factura, Logs
 from core.ApiMikrotik import suspenderCliente, reconectarCliente
 from .models import ConfiguracionMorosidad
-from .forms import ConfiguracionMorosidadForm
+from .forms import ConfiguracionMorosidadForm, FiltroClientesMorosos
 from core.autenticacion import grupo_requerido
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -84,11 +86,21 @@ def generarFacturasDelMes():
 @login_required
 @grupo_requerido('soporte')
 def panelMorosidad(request):
+    # Clientes con deuda pendiente (saldo > 0) y no borrados
     todosClientes = Cliente.objects.filter(borrado=False, saldo__gt=0)
+    
+    #Filtro por nombre o cedula
+    filtroForm= FiltroClientesMorosos(request.GET or None)
+    if filtroForm.is_valid():
+        nombreCliente = filtroForm.cleaned_data.get('nombreCliente')
+        if nombreCliente:
+            todosClientes = todosClientes.filter(
+                models.Q(nombre__icontains=nombreCliente) |
+                models.Q(cedula__icontains=nombreCliente)
+            )
     config = obtenerConfiguracion()
     
-    if request.method == 'POST':
-        if 'guardarConfig' in request.POST:
+    if request.method == 'POST'and 'guardarConfig' in request.POST:
             form = ConfiguracionMorosidadForm(request.POST , instance=config)
             if form.is_valid():
                 form.save()
@@ -107,6 +119,7 @@ def panelMorosidad(request):
     else:
         form = ConfiguracionMorosidadForm(instance=config)
     
+    #Paginacion de clientes morosos
     paginator = Paginator(todosClientes, 10)
     query_params = request.GET.copy()
 
@@ -114,7 +127,13 @@ def panelMorosidad(request):
         del query_params['page']
 
     clientes = paginator.get_page(request.GET.get('page'))
-    return render(request, 'panel_morosidad.html' , {'form': form, 'config': config, 'clientes': clientes, 'query_string': query_params.urlencode()})
+    return render(request, 'panel_morosidad.html' , {
+        'form': form,
+        'config': config,
+        'clientes': clientes,
+        'query_string': query_params.urlencode(),
+        'filtroForm':filtroForm,
+        })
 
 
 @login_required
