@@ -17,7 +17,13 @@ class ConfiguracionMorosidadForm(forms.ModelForm):
         if diasGracia < 1 or diasGracia > 30:
             raise forms.ValidationError("Los días de gracia deben estar entre 1 y 30.")
         return diasGracia
-    
+
+    def clean_diaCobroMensual(self):
+        diaCobroMensual = self.cleaned_data['diaCobroMensual']
+        if diaCobroMensual < 1 or diaCobroMensual > 28:
+            raise forms.ValidationError("El día de cobro mensual debe estar entre 1 y 28.")
+        return diaCobroMensual
+
 class FiltroClientesMorosos(forms.Form):
     nombreCliente = forms.CharField(
         label='Nombre del Cliente',
