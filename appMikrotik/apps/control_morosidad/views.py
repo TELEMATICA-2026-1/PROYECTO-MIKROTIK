@@ -32,9 +32,9 @@ def calcularMontoProrrateado(cliente, fechaFactura):
         return cliente.idPlan.precioUSD
     #calculamos dias desde el registro hasta el fin de mes
     diaRegistro = fechaRegistro.day
-    diasRestantes = calendar.monthrange(fechaFactura.year, fechaFactura.month)[1] -(diaRegistro -1)
+    diasRestantes = calendar.monthrange(fechaRegistro.year, fechaRegistro.month)[1] -(diaRegistro -1)
     
-    monto = (Decimal(str(diasRestantes))/Decimal(str(calendar.monthrange(fechaFactura.year, fechaFactura.month)[1])))*cliente.idPlan.precioUSD
+    monto = (Decimal((diasRestantes))/Decimal((calendar.monthrange(fechaRegistro.year, fechaRegistro.month)[1])))*cliente.idPlan.precioUSD
     return monto.quantize(Decimal('0.01'))  # Redondear a 2 decimales
 
 def generarFacturaParaCliente(cliente, fechaFactura):
@@ -66,27 +66,28 @@ def generarFacturasDelMes():
     config = obtenerConfiguracion()
     hoy = timezone.now().date()
     
-    # si el dia de cobro es hoy
+    # si el dia de cobro es hoy, retorna lista vacia
     if hoy.day != config.diaCobroMensual:
-        return 0
+        return []
     
     clientes = Cliente.objects.filter(borrado=False)
     totalFactura = []
     fechaFactura = timezone.make_aware(datetime.combine(hoy, datetime.min.time()))
     
     for cliente in clientes:
+        # evita duplicar facturas si ya existe una factura 
         if Factura.objects.filter(idCliente= cliente, fecha__date=hoy).exists():
             continue
         
         factura= generarFacturaParaCliente(cliente, fechaFactura)
-        totalFactura.append(factura)
+        
+        if factura:
+            totalFactura.append(factura)
     return totalFactura
 
 
 def suspenderMorosos():
     #suspende a toods los clientes que ya superarron los dias de gracia
-    config = obtenerConfiguracion()
-    fechaLimite = timezone.now() - timezone.timedelta(days=config.diasGracia)
     clientesPendientes = Cliente.objects.filter(
         borrado=False,
         saldo__gt=0, 
