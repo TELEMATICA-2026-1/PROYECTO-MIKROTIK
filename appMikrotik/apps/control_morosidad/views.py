@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
-
+from decimal import Decimal
 from django.db import models
 from core.models import Cliente, Factura, Logs
 from core.ApiMikrotik import suspenderCliente, reconectarCliente
@@ -14,6 +14,10 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 import calendar
 
+
+# Usuario del sistema para logs automatizados
+system_user = User.objects.get(username='Sistema')
+
 def obtenerConfiguracion():
     #Funcion para obtener la configuracion de morosidad, la crea si no existe
     config, _=ConfiguracionMorosidad.objects.get_or_create(
@@ -22,21 +26,19 @@ def obtenerConfiguracion():
     return config
 
 def calcularMontoProrrateado(cliente, fechaFactura):
-    """Se calcula el monto proporcional para la primera
-    factura se asume meses de 30 dias (acordado en Daily)"""
-    fechaRegistro = cliente.fechaRegistro
-    if fechaRegistro.day == fechaFactura.day:
+    #Se calcula el monto proporcional para la primera factura
+    fechaRegistro = cliente.fechaRegistro.date()
+    if fechaRegistro == fechaFactura.date():
         return cliente.idPlan.precioUSD
     #calculamos dias desde el registro hasta el fin de mes
     diaRegistro = fechaRegistro.day
     diasRestantes = calendar.monthrange(fechaFactura.year, fechaFactura.month)[1] -(diaRegistro -1)
     
-    monto = (diasRestantes/calendar.monthrange(fechaFactura.year, fechaFactura.month)[1])*cliente.idPlan.precioUSD
-    return round(monto, 2)
+    monto = (Decimal(str(diasRestantes))/Decimal(str(calendar.monthrange(fechaFactura.year, fechaFactura.month)[1])))*cliente.idPlan.precioUSD
+    return monto.quantize(Decimal('0.01'))  # Redondear a 2 decimales
 
 def generarFacturaParaCliente(cliente, fechaFactura):
-    """Se genera una factura para un cliente en especifico en
-    la fecha indicada"""
+    #Se genera una factura para un cliente en especifico en la fecha indicada"""
     facturasCliente = Factura.objects.filter(idCliente=cliente).count()
     if facturasCliente == 0:
     # Si el cliente ya tiene saldo sin facturas 
@@ -59,8 +61,6 @@ def generarFacturaParaCliente(cliente, fechaFactura):
 
 #generar listas de todas las facturas no montos (revisar la cantidad de caracteres) imprimir factrura con le mensaje definido en f"
 
-
-
 def generarFacturasDelMes():
     #se generan facturas para todos los clientes el dia de cobro configurado
     config = obtenerConfiguracion()
@@ -81,6 +81,68 @@ def generarFacturasDelMes():
         factura= generarFacturaParaCliente(cliente, fechaFactura)
         totalFactura.append(factura)
     return totalFactura
+
+
+def suspenderMorosos():
+    #suspende a toods los clientes que ya superarron los dias de gracia
+    config = obtenerConfiguracion()
+    fechaLimite = timezone.now() - timezone.timedelta(days=config.diasGracia)
+    clientesPendientes = Cliente.objects.filter(
+        borrado=False,
+        saldo__gt=0, 
+        estado='Pendiente', 
+        )
+    
+    desconexiones = []
+    errores = []
+    for cliente in clientesPendientes:
+        if suspenderCliente(cliente.direccionIP):
+            desconexiones.append(f"Desconectando a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por morosidad.")
+        else:
+            errores.append(f"Error al desconectar a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por morosidad.")
+        cliente.estado = 'Desconectado'
+        cliente.save(update_fields=['estado'])
+    
+    if desconexiones:
+        Logs.objects.create(
+        idPersonal=system_user,
+        mensaje= "\n".join(desconexiones), 
+        modulo="Control Morosidad",
+        error=False
+        )
+    if errores:
+        Logs.objects.create(
+        idPersonal=system_user,
+        mensaje= "\n".join(errores), 
+        modulo="Control Morosidad",
+        error=True
+        )
+    
+    return len(desconexiones)
+
+def reconectarClienteEspecifico(cliente):
+    #Reconecta a un cliente especifico que ya pago su deuda
+    if cliente.saldo > 0:
+        return False #no se reconecta si el cliente sigue teniendo deuda
+    
+    if reconectarCliente(cliente.direccionIP):
+        cliente.estado = 'Solvente'
+        cliente.save(update_fields=['estado'])
+        Logs.objects.create(
+            idPersonal=system_user,
+            mensaje=f"Reconectando a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por pago.",
+            modulo="Control Morosidad",
+            error=False
+        )
+        return True
+    else:
+        Logs.objects.create(
+            idPersonal=system_user,
+            mensaje=f"Error al reconectar a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por pago.",
+            modulo="Control Morosidad",
+            error=True
+        )
+        return False
 
 
 @login_required
@@ -156,7 +218,7 @@ def generarFacturasView(request):
 @login_required
 @grupo_requerido('soporte')
 def evaluarMorosidadView(request):
-    """Endpoint que puede ser llamado por cron para ejecutar la rutina automatica"""
+    #Vista manual que ejecuta suspension de morosos y reconexion de clientes que pagaron
     clientesPendientes = Cliente.objects.filter(borrado=False, saldo__gt=0, estado='Pendiente')
     clientesPagos = Cliente.objects.filter(borrado=False, saldo=0, estado='Desconectado')
     desconexiones = []
@@ -181,28 +243,28 @@ def evaluarMorosidadView(request):
     if desconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= "\n".join(str(item) for item in desconexiones), 
+        mensaje= "\n".join(desconexiones), 
         modulo="Control Morosidad",
         error=False
         )   
     if errorDesconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= "\n".join(str(item) for item in errorDesconexiones), 
+        mensaje= "\n".join(errorDesconexiones), 
         modulo="Control Morosidad",
         error=True
         )
     if reconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= "\n".join(str(item) for item in reconexiones), 
+        mensaje= "\n".join(reconexiones), 
         modulo="Control Morosidad",
         error=False
         )
     if errorReconexiones:
         Logs.objects.create(
         idPersonal=request.user,
-        mensaje= "\n".join(str(item) for item in errorReconexiones), 
+        mensaje= "\n".join(errorReconexiones), 
         modulo="Control Morosidad",
         error=True
         )
