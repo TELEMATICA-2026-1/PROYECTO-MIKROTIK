@@ -144,7 +144,7 @@ def reconectarClienteEspecifico(cliente):
         )
         return False
 
-
+# Vistas manuales para el panel de control de morosidad
 @login_required
 @grupo_requerido('soporte')
 def panelMorosidad(request):
@@ -201,7 +201,7 @@ def panelMorosidad(request):
 @login_required
 @grupo_requerido('soporte')
 def generarFacturasView(request):
-    """Vista para forzar la generacion manual de facturas"""
+    #Vista para forzar la generacion manual de facturas
     if request.method == 'POST':
         total = generarFacturasDelMes()
         Logs.objects.create(
