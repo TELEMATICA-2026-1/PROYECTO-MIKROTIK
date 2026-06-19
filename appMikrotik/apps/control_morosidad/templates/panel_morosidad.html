@@ -67,7 +67,7 @@
                         <div class="d-flex justify-content-end align-items-center flex-wrap">
                             <!--Filtro para buscar clientes por nombre o RIF-->
                             <div class="me-3 text-nowrap">
-                                <!--aqui Filtro para buscar por nombre-->
+                                {{ filtroForm.nombreCliente }}
                             </div>
                             <!--boton buscar-->
                             <div class="me-3 text-nowrap"> 
@@ -126,7 +126,7 @@
 
         <!-- Pie de página con la paginación, para no sobrecargar la página -->
         <div class="card-footer">
-            <div class="row g-4 mb-3"> 
+            <div class="row g-4 mb-1"> 
                 {% if clientes.has_other_pages %}
                     <nav aria-label="Paginación de clientes">
                         <ul class="pagination justify-content-center mt-2 mb-0">
@@ -162,7 +162,7 @@
                 {% endif %}
             </div>
 
-            <div class="row g-4 mt-3 justify-content-center gap-2">
+            <div class="row g-4 mt-1 justify-content-center gap-2">
                 <div class="col-md-4 text-center">
                     
                     <a href="{% url 'evaluarMorosidad' %}" class="btn btn-warning me-2">Evaluar morosidad</a>
