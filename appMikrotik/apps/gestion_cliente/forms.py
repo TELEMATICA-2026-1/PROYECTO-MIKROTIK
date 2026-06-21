@@ -2,6 +2,7 @@ from django.forms import ModelForm, forms, BooleanField
 from core.models import Cliente, Plan
 from django.forms.widgets import CheckboxInput, Select
 import re 
+import ipaddress
 from django import forms
 
 class PlanSelectWidget(Select):
@@ -92,6 +93,39 @@ class ClienteForm(ModelForm):
                 raise forms.ValidationError("Por favor, introduce una dirección más detallada para el equipo técnico (mínimo 15 caracteres).")
         
         return direccion
+
+    def clean_direccionIP(self):
+        ip = self.cleaned_data.get('direccionIP')
+        
+        if ip:
+            ip = ip.strip()
+            
+            # 1. Validar formato IPv4 básico
+            try:
+                ip_obj = ipaddress.IPv4Address(ip)
+            except ValueError:
+                raise forms.ValidationError("La dirección IP no tiene un formato IPv4 válido.")
+            
+            # 2. Definir el pool único
+            POOL_CLIENTES = ipaddress.IPv4Network('192.168.10.0/24')
+            
+            # 3. Validar que pertenezca al rango
+            if ip_obj not in POOL_CLIENTES:
+                raise forms.ValidationError(f"La IP debe pertenecer al rango autorizado ({POOL_CLIENTES}).")
+            
+            # 4. Validar IPs críticas de una sola vez
+            ips_prohibidas = [
+                POOL_CLIENTES.network_address,      # 192.168.10.0 (Red)
+                POOL_CLIENTES.network_address + 1,  # 192.168.10.1 (Gateway/MikroTik)
+                POOL_CLIENTES.broadcast_address     # 192.168.10.255 (Broadcast)
+            ]
+            
+            if ip_obj in ips_prohibidas:
+                raise forms.ValidationError(
+                    "Esta IP está reservada para la infraestructura de red (Red, Gateway o Broadcast) y no puede asignarse."
+                )
+
+        return ip
     
     def clean(self):
         cleaned_data = super().clean()
