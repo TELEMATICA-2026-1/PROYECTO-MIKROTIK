@@ -36,7 +36,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-solventes">
                 <div class="card-body">
                     <h5 class="card-title h2">Solventes</h5>
-                    <p class="card-text"><strong>15</strong> disfrutando servicio</p>
+                    <p class="card-text"><strong id="tarjeta-solventes">0</strong> disfrutando servicio</p>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-exonerados">
                 <div class="card-body">
                     <h5 class="card-title h2">Exonerados</h5>
-                    <p class="card-text"><strong>2</strong> exonerados de pagos</p>
+                    <p class="card-text"><strong id="tarjeta-exonerados">0</strong> exonerados de pagos</p>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-pendientes">
                 <div class="card-body">
                     <h5 class="card-title h2">Pendientes</h5>
-                    <p class="card-text"><strong>3</strong> en espera de pago</p>
+                    <p class="card-text"><strong id="tarjeta-pendientes">0</strong> en espera de pago</p>
                 </div>
             </div>
         </div>
@@ -63,7 +63,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-desconectados">
                 <div class="card-body">
                     <h5 class="card-title h2">Desconectados</h5>
-                    <p class="card-text"><strong>13</strong> fuera de servicio</p>
+                    <p class="card-text"><strong id="tarjeta-desconectados">0</strong> fuera de servicio</p>
                 </div>
             </div>
         </div>
@@ -95,10 +95,25 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'graficas/chart.js' %}"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Cargar números de las tarjetas resumen desde la API de clientes
+        fetch('api/tarjetas-dashboard/')
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    document.getElementById('tarjeta-solventes').textContent = data.solventes ?? 0;
+                    document.getElementById('tarjeta-exonerados').textContent = data.exonerados ?? 0;
+                    document.getElementById('tarjeta-pendientes').textContent = data.pendientes ?? 0;
+                    document.getElementById('tarjeta-desconectados').textContent = data.desconectados ?? 0;
+                } catch (e) {
+                    console.error('Error al actualizar las tarjetas del dashboard:', e);
+                }
+            })
+            .catch(err => console.error('Error al cargar las tarjetas del dashboard:', err));
+
         // Asegúrate de colocar la URL correcta que definiste en tu urls.py para la vista api_graficos_dashboard
         fetch('api/graficos-dashboard/') 
             .then(response => response.json())
