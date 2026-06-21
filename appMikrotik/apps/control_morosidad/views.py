@@ -98,11 +98,13 @@ def suspenderMorosos():
     errores = []
     for cliente in clientesPendientes:
         if suspenderCliente(cliente.direccionIP):
+            cliente.estado = 'Desconectado'
+            cliente.save(update_fields=['estado'])
             desconexiones.append(f"Desconectando a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por morosidad.")
         else:
+            # No cambia el estado, solo se registra el error
             errores.append(f"Error al desconectar a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por morosidad.")
-        cliente.estado = 'Desconectado'
-        cliente.save(update_fields=['estado'])
+        
     
     if desconexiones:
         Logs.objects.create(
