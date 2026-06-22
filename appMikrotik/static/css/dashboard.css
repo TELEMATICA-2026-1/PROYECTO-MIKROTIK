@@ -18,3 +18,15 @@
 .bg-desconectados {
     background-color: #f44336;
 }
+
+.bg-chart-logs { 
+    background-color: #f3e5f5; 
+    border-radius: 8px; 
+    border: 2px solid #ce93d8; 
+}
+
+.bg-chart-cobranza { 
+    background-color: #ffebee ; 
+    border-radius: 8px; 
+    border: 2px solid #f8bbd0; 
+}

@@ -5,9 +5,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
 {% block title %} Inicio {% endblock %}
 {% block head %}
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
-
     <style>
-        /* Estilos para replicar los fondos mostrados en el mockup */
         .bg-chart-logs { background-color: #f3e5f5; border-radius: 8px; border: 2px solid #ce93d8; }
         .bg-chart-cobranzas { background-color: #ffebee; border-radius: 8px; border: 2px solid #f8bbd0; }
     </style>
@@ -69,21 +67,27 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
         </div>
     </div>
 
-    <div class="row mt-3 g-4">
-        <div class="col-md-7">
+    
+    <div class="row mt-3 g-4 mb-3">
+        <!--Grafica de historicos de Logs-->
+        <div class="col-md-7 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h4 class="font-weight-bold mb-0">Histórico de éxito y errores (Logs)</h4>
-                <span class="badge bg-secondary py-2 px-3">Últimos 7 Días</span>
             </div>
-            <div class="p-3 bg-chart-logs shadow-sm">
-                <canvas id="graficaLogsDash" height="120"></canvas>
+            <div class="p-3 bg-chart-logs shadow-sm h-100 d-flex flex-column">
+                <div class="position-relative flex-grow-1" style="min-height: 250px;">
+                    <canvas id="graficaLogsDash"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-5">
-            <h4 class="font-weight-bold mb-2">Estado de cobranzas</h4>
-            <div class="p-3 bg-chart-cobranzas shadow-sm d-flex justify-content-center">
-                <div style="width: 80%;">
+        <!--Grafica de Rstado de cobranzas-->
+        <div class="col-md-5 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="font-weight-bold mb-0">Estado de cobranzas</h4>
+            </div>
+            <div class="p-3 bg-chart-cobranzas shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+                <div class="position-relative w-100 flex-grow-1" style="min-height: 250px;">
                     <canvas id="graficaCobranzasDash"></canvas>
                 </div>
             </div>
@@ -95,142 +99,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'graficas/chart.js' %}"></script>
+<script src="{% static 'js/chart.js' %}"></script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Cargar números de las tarjetas resumen desde la API de clientes
-        fetch('api/tarjetas-dashboard/')
-            .then(response => response.json())
-            .then(data => {
-                try {
-                    document.getElementById('tarjeta-solventes').textContent = data.solventes ?? 0;
-                    document.getElementById('tarjeta-exonerados').textContent = data.exonerados ?? 0;
-                    document.getElementById('tarjeta-pendientes').textContent = data.pendientes ?? 0;
-                    document.getElementById('tarjeta-desconectados').textContent = data.desconectados ?? 0;
-                } catch (e) {
-                    console.error('Error al actualizar las tarjetas del dashboard:', e);
-                }
-            })
-            .catch(err => console.error('Error al cargar las tarjetas del dashboard:', err));
-
-        // Asegúrate de colocar la URL correcta que definiste en tu urls.py para la vista api_graficos_dashboard
-        fetch('api/graficos-dashboard/') 
-            .then(response => response.json())
-            .then(data => {
-                
-                // 1. Gráfica de Líneas - Histórico de Logs
-                const ctxLogs = document.getElementById('graficaLogsDash').getContext('2d');
-                new Chart(ctxLogs, {
-                    type: 'line',
-                    data: {
-                        labels: data.historico_logs.labels,
-                        datasets: [
-                            {
-                                label: 'Éxitos',
-                                data: data.historico_logs.exitos,
-                                borderColor: '#10b981', // Verde estilo imagen
-                                backgroundColor: '#10b981',
-                                tension: 0.4, // Esto genera el efecto de curva suave
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#10b981'
-                            },
-                            {
-                                label: 'Errores',
-                                data: data.historico_logs.errores,
-                                borderColor: '#ef4444', // Rojo estilo imagen
-                                backgroundColor: '#ef4444',
-                                tension: 0.4, // Curva suave
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#ef4444'
-                            }
-                        ]
-                    },
-                    options: { 
-                        responsive: true,
-                        plugins: { 
-                            legend: { display: false } // Oculto para que sea idéntico al mockup
-                        },
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-
-                // 2. Gráfica de Dona - Estado de Cobranzas
-                // Transformamos el diccionario { 'Morosos': X, 'Al dia': Y } en arreglos
-                // raw labels y valores (desde la API)
-                const rawLabelsCobranzas = Object.keys(data.estado_cobranzas);
-                const valoresCobranzas = Object.values(data.estado_cobranzas);
-
-                // calcular porcentajes
-                const total = valoresCobranzas.reduce((a, b) => a + b, 0) || 1;
-                const porcentajes = valoresCobranzas.map(v => Math.round((v / total) * 100));
-
-                // mapear labels (ej. "Solvente" -> "Clientes al día") y añadir porcentaje al texto
-                const labelMap = {
-                    'Solvente': 'Clientes al día',
-                    'Pendiente': 'Clientes morosos'
-                };
-
-                const etiquetasCobranzas = rawLabelsCobranzas.map((estado, i) =>
-                    `${labelMap[estado] || estado} (${porcentajes[i]}%)`
-                );
-
-                // usar porcentajes como datos del gráfico para que la dona muestre proporciones
-                const datosGrafica = porcentajes;
-
-                const coloresCobranzas = rawLabelsCobranzas.map(estado => {
-                    const est = estado.toLowerCase();
-                    if (est.includes('dia') || est.includes('solvente')) return '#3b82f6';
-                    if (est.includes('pendiente') || est.includes('deuda')) return '#ef4444';
-                    return '#95a5a6';
-                });
-
-                // Obtener el contexto del canvas antes de crear la gráfica
-                const ctxCobranzas = document.getElementById('graficaCobranzasDash').getContext('2d');
-
-                new Chart(ctxCobranzas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: etiquetasCobranzas,
-                        datasets: [{
-                            data: datosGrafica,
-                            backgroundColor: coloresCobranzas,
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        cutout: '55%',
-                        plugins: {
-                            legend: { position: 'top', labels: { font: { size: 11 } } },
-                            tooltip: {
-                                callbacks: {
-                                    // mostrar también el conteo absoluto en el tooltip
-                                    label: function(context) {
-                                        const i = context.dataIndex;
-                                        const count = valoresCobranzas[i];
-                                        const pct = porcentajes[i];
-                                        return `${context.label}: ${count} clientes (${pct}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-            })
-            .catch(error => console.error('Error al cargar los gráficos del dashboard:', error));
-    });
-</script>
+<script src="{% static 'js/graficaLogsyCobranza.js' %}"> </script>
 {% endblock %}

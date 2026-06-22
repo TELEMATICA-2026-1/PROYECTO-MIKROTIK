@@ -17,7 +17,7 @@
         <div class="mb-5">
             <h4 class=".h4">Información del Cliente</h4>
             <hr class="text-muted mb-4">
-            <div class="row g-4">
+            <div class="row g-4 mb-2">
                 <div class="col-md-4">
                     <label class="form-label fst-italic text-muted small mb-1">Nombre</label>
                     <input type="text" class="form-control bg-light" value="{{ cliente.nombre}}" readonly>
@@ -47,8 +47,8 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label fst-italic text-muted small mb-1">Saldo pendiente</label>
-                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo }}" readonly>
+                    <label class="form-label fst-italic text-muted small mb-1">Saldo pendiente (USD)</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo|floatformat:'2u' }}" readonly>
                 </div>
 
             </div>
@@ -113,6 +113,11 @@
                     </div>
 
                     <div class="col-md-4">
+                        <label class="form-label fst-italic text-muted small mb-1">Monto a Pagar (Bs)</label>
+                        <input type="text" class="form-control" id="monto_bs" inputmode="decimal">
+                    </div>
+
+                    <div class="col-md-4">
                         <label class="form-label fst-italic text-muted small mb-1"> Comprobante </label>
                         <div>
                             <!-- Botón para abrir el modal que muestra el comprobante de pago actual y permite reemplazarlo por otro archivo -->
@@ -138,3 +143,8 @@
 
 
 {% endblock %} 
+
+{% block scripts %}
+<!-- Script para calcular el monto en bolívares automáticamente al ingresar el monto en dólares y la tasa del día -->
+    <script src="{% static 'js/calculoMontos.js' %}"></script>
+{% endblock %}

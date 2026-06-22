@@ -44,8 +44,8 @@
                     <input type="text" class="form-control bg-light" value="{{ cliente.estado }}" readonly>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fst-italic text-muted small mb-1">Saldo Pendiente</label>
-                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo }}" readonly>
+                    <label class="form-label fst-italic text-muted small mb-1">Saldo Pendiente (USD)</label>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo|floatformat:'2u' }}" readonly>
                 </div>
             </div>
         </div>
