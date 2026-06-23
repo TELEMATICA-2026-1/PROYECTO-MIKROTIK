@@ -80,7 +80,7 @@ def crear_pago(request,id):
                     'error': 'El monto del pago excede el saldo pendiente del cliente.'
                     })
             elif cliente.saldo == 0 and cliente.estado == 'Desconectado':
-                if reconectarClienteEspecifico(cliente.direccionIP):
+                if reconectarClienteEspecifico(cliente):
                     cliente.estado = 'Solvente'
 
             nuevo_pago = form.save(commit=False)
