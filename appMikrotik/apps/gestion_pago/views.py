@@ -6,7 +6,7 @@ from core.models import Pago, Logs, Cliente
 from .forms import PagoForm, FiltroPagos, FiltroPendientes
 from django.contrib.auth.decorators import login_required
 from core.autenticacion import grupo_requerido
-
+from control_morosidad.views import reconectarClienteEspecifico
 
 # Create your views here.
 
@@ -56,6 +56,7 @@ def gestion_pago(request,id):
 # Este metodo se encarga de registrar un nuevo pago para un cliente específico, 
 # actualizando el saldo del cliente y su estado si es necesario y si las entradas son validas. 
 # Registra un log detallado del nuevo pago registrado, incluyendo el monto y la tasa aplicada.
+# Reconecta al cliente si su saldo llega a cero después del pago.
 @login_required
 @grupo_requerido('asistente_administrativo')
 def crear_pago(request,id):
@@ -78,8 +79,9 @@ def crear_pago(request,id):
                     'fecha': timezone.now(),
                     'error': 'El monto del pago excede el saldo pendiente del cliente.'
                     })
-            elif cliente.saldo == 0:
-                cliente.estado = 'Solvente'
+            elif cliente.saldo == 0 and cliente.estado == 'Desconectado':
+                if reconectarClienteEspecifico(cliente):
+                    cliente.estado = 'Solvente'
 
             nuevo_pago = form.save(commit=False)
             nuevo_pago.idPersonal = request.user
@@ -97,7 +99,6 @@ Tasa: {nuevo_pago.tasa}""",
                 error = False,
                 fecha = timezone.now()
             )
-
             return redirect('gestion_pagos',0)
     else:
         form = PagoForm()
@@ -133,8 +134,9 @@ def modificar_pago(request, id):
                     'fecha': pago.fecha,
                     'error': 'El monto del pago excede el saldo pendiente del cliente.'
                 })
-            elif cliente.saldo == 0:
-                cliente.estado = 'Solvente'
+            elif cliente.saldo == 0 and cliente.estado == 'Desconectado':
+                if reconectarClienteEspecifico(cliente):
+                    cliente.estado = 'Solvente'
             else:
                 cliente.estado = 'Pendiente'
 

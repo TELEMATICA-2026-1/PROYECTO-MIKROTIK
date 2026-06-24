@@ -125,12 +125,7 @@ def suspenderMorosos():
 
 def reconectarClienteEspecifico(cliente):
     #Reconecta a un cliente especifico que ya pago su deuda
-    if cliente.saldo > 0:
-        return False #no se reconecta si el cliente sigue teniendo deuda
-    
     if reconectarCliente(cliente.direccionIP):
-        cliente.estado = 'Solvente'
-        cliente.save(update_fields=['estado'])
         Logs.objects.create(
             idPersonal=system_user,
             mensaje=f"Reconectando a {cliente.nombre} (Cedula {cliente.cedula}) (Direccion IP: {cliente.direccionIP}) por pago.",
