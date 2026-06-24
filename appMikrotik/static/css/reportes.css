@@ -1,0 +1,59 @@
+/* Tarjetas principales del contenedor */
+.main-card {
+    border: 1px solid #cccccc !important;
+    border-radius: 2rem !important; /* Bordes muy redondeados como la imagen */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    background-color: #ffffff;
+}
+
+/* Selector de mes */
+.select-custom {
+    border-radius: 0.75rem;
+    border: 1px solid #cccccc;
+    min-width: 100px;
+}
+
+/* Botón de impresión */
+.btn-print {
+    border-radius: 0.75rem;
+    border: 1px solid #212529;
+    color: #212529;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+}
+.btn-print:hover {
+    background-color: #212529;
+    color: #ffffff;
+}
+
+/* Tarjetas internas de recaudación */
+.card-recaudacion {
+    border-radius: 1.5rem !important;
+    background-color: #ffffff;
+    transition: transform 0.2s;
+}
+
+/* Variantes de color específicas */
+.border-bs {
+    border: 2px solid #3b82f6 !important; /* Azul */
+}
+.text-bs {
+    color: #3b82f6;
+}
+
+.border-usd {
+    border: 2px solid #10b981 !important; /* Verde */
+}
+.text-usd {
+    color: #10b981;
+}
+
+/* Ajustes de contenedores para gráficos */
+.chart-container {
+    min-height: 250px;
+    position: relative;
+    width: 100%;
+}

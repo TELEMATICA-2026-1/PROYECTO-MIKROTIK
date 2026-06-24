@@ -46,7 +46,7 @@ def api_datos_reportes(request):
         "ingresos_metodo": {
             "labels": g1_labels,
             "data": g1_data,
-            "titulo": "Distribución de Ingresos por Método de Pago ($)"
+            
         },
         "clientes_estado": {
             "labels": g2_labels,

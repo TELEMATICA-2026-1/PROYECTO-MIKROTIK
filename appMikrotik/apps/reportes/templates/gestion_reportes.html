@@ -3,6 +3,10 @@
 
 {% block title %} Gestión de Reportes {% endblock %}
 
+{% block head %}
+    <link href="{% static 'css/reportes.css' %}" rel="stylesheet" />
+{% endblock %}
+
 {% block breadcrumb_items %}
     <li class="breadcrumb-item">Reportes</li>
 {% endblock %}
@@ -11,232 +15,90 @@
 <div class="container-fluid mt-2">
     <div class="row mb-3">
         <div class="col">
-            <h3 class="text-primary font-weight-bold">📊 Panel de Control y Reportes</h3>
-            <p class="text-muted small">Métricas del sistema integradas en tiempo real mediante API asíncrona unificada.</p>
+            <span class="h1">Reportes</span>
+            <p class="text-muted small">Visualiza y analiza el comportamiento de tus ingresos, la recaudación mensual y la efectividad de cada método de pago.</p>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaMetodos"></canvas>
+    <div class="row g-4">
+        <!-- Tarjeta de Ingresos Mensuales -->
+        <div class="col-12 col-lg-6">
+            <div class="card main-card p-4 h-100">
+                <!-- Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="fw-bold m-0 h3 text-dark">Ingresos Mensuales</h2>
+                    <div class="d-flex gap-2">  
+                        <select class="form-select text-muted select-custom" aria-label="Seleccionar mes">
+                            <option selected>Mes</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <!-- botón de impresión -->
+                        <button class="btn btn-sm btn-outline-dark" type="button">
+                            <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" title="Imprimir" width="20" height="20">
+                        </button>
+                    </div>
+                </div>
+                <hr class="text-muted mb-5">
+                <!-- Bloques de Recaudación en bolivares y dolares -->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card text-center card-recaudacion border-bs h-100 p-3">
+                            <span class="fw-bold text-dark h5 mb-2">Recaudacion en Bs</span>
+                            <span class="fw-bold h4 text-bs m-0">{{ recaudacion_bs }} Bs</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center card-recaudacion border-usd h-100 p-3">
+                            <span class="fw-bold text-dark h5 mb-2">Recaudacion en $</span>
+                            <span class="fw-bold h4 text-usd m-0">{{ recaudacion_usd }} $</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contenedor del Gráfico de Ingresos Mensuales -->
+                <div class="chart-container flex-grow-1 d-flex align-items-end justify-content-center">
+                    <canvas id="graficaMensual" style="max-height: 330px; width: 100%;"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaClientes"></canvas>
+
+        <!-- Tarjeta de Distribución de Ingresos por metodo de pago -->
+        <div class="col-12 col-lg-6">
+            <div class="card main-card p-4 h-100">
+                <!-- Encabezado -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="fw-bold m-0 h4 text-dark text-wrap-balance">Distribución de ingresos por método de pago</h2>
+                    <!-- botón de impresión -->
+                    <button class="btn btn-sm btn-outline-dark" type="button">
+                        <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" title="Imprimir" width="20" height="20">
+                    </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaPlanes"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaMensual"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaLogs"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    // Llamado asíncrono a tu API unificada
-    fetch('/api/datos-reportes/')
-        .then(response => response.json())
-        .then(data => {
-            
-            // 1. Gráfica de Barras - Métodos de Pago
-            new Chart(document.getElementById('graficaMetodos'), {
-                type: 'bar',
-                data: {
-                    labels: data.ingresos_metodo.labels,
-                    datasets: [{
-                        label: 'Monto Recaudado ($)',
-                        data: data.ingresos_metodo.data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.ingresos_metodo.titulo } } }
-            });
-
-            // 2. Gráfica de Torta - Estado de Clientes
-            new Chart(document.getElementById('graficaClientes'), {
-                type: 'pie',
-                data: {
-                    labels: data.clientes_estado.labels,
-                    datasets: [{
-                        data: data.clientes_estado.data,
-                        backgroundColor: ['#2ecc71', '#e74c3c', '#f1c40f', '#34495e']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.clientes_estado.titulo } } }
-            });
-
-            // 3. Gráfica de Dona - Planes Populares
-            new Chart(document.getElementById('graficaPlanes'), {
-                type: 'doughnut',
-                data: {
-                    labels: data.planes_populares.labels,
-                    datasets: [{
-                        data: data.planes_populares.data,
-                        backgroundColor: ['#9b59b6', '#3498db', '#1abc9c', '#e67e22']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.planes_populares.titulo } } }
-            });
-
-            // 4. Gráfica de Líneas - Evolución Mensual
-            new Chart(document.getElementById('graficaMensual'), {
-                type: 'line',
-                data: {
-                    labels: data.ingresos_mensuales.labels,
-                    datasets: [{
-                        label: 'Ganancias mensuales ($)',
-                        data: data.ingresos_mensuales.data,
-                        borderColor: '#e67e22',
-                        backgroundColor: 'rgba(230, 126, 34, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.ingresos_mensuales.titulo } } }
-            });
-
-            // 5. Gráfica de Área Polar - Logs de Errores
-            new Chart(document.getElementById('graficaLogs'), {
-                type: 'polarArea',
-                data: {
-                    labels: data.metricas_logs.labels,
-                    datasets: [{
-                        data: data.metricas_logs.data,
-                        backgroundColor: ['rgba(231, 76, 60, 0.7)', 'rgba(241, 196, 15, 0.7)', 'rgba(52, 152, 219, 0.7)']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.metricas_logs.titulo } } }
-            });
-
-        })
-        .catch(error => console.error('Error al mapear las gráficas:', error));
-        
-</script>
-<div class="row justify-content-center">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="graficaLogs"></canvas>
+                <hr class="text-muted mb-5">
+                <!-- Contenedor del Gráfico Métodos de Pago -->
+                <div class="chart-container flex-grow-1 d-flex align-items-end justify-content-center">
+                    <canvas id="graficaMetodos" style="max-height: 330px; width: 100%;"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    fetch('/api/datos-reportes/')
-        .then(response => response.json())
-        .then(data => {
-            
-            // 1. Gráfica de Barras - Métodos de Pago
-            new Chart(document.getElementById('graficaMetodos'), {
-                type: 'bar',
-                data: {
-                    labels: data.ingresos_metodo.labels,
-                    datasets: [{
-                        label: 'Monto Recaudado ($)',
-                        data: data.ingresos_metodo.data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.ingresos_metodo.titulo } } }
-            });
-
-            // 2. Gráfica de Torta - Estado de Clientes
-            new Chart(document.getElementById('graficaClientes'), {
-                type: 'pie',
-                data: {
-                    labels: data.clientes_estado.labels,
-                    datasets: [{
-                        data: data.clientes_estado.data,
-                        backgroundColor: ['#2ecc71', '#e74c3c', '#f1c40f', '#34495e']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.clientes_estado.titulo } } }
-            });
-
-            // 3. Gráfica de Dona - Planes Populares
-            new Chart(document.getElementById('graficaPlanes'), {
-                type: 'doughnut',
-                data: {
-                    labels: data.planes_populares.labels,
-                    datasets: [{
-                        data: data.planes_populares.data,
-                        backgroundColor: ['#9b59b6', '#3498db', '#1abc9c', '#e67e22']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.planes_populares.titulo } } }
-            });
-
-            // 4. Gráfica de Líneas - Evolución Mensual
-            new Chart(document.getElementById('graficaMensual'), {
-                type: 'line',
-                data: {
-                    labels: data.ingresos_mensuales.labels,
-                    datasets: [{
-                        label: 'Ganancias mensuales ($)',
-                        data: data.ingresos_mensuales.data,
-                        borderColor: '#e67e22',
-                        backgroundColor: 'rgba(230, 126, 34, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.ingresos_mensuales.titulo } } }
-            });
-
-            // 5. Gráfica de Área Polar - Logs de Errores
-            new Chart(document.getElementById('graficaLogs'), {
-                type: 'polarArea',
-                data: {
-                    labels: data.metricas_logs.labels,
-                    datasets: [{
-                        data: data.metricas_logs.data,
-                        backgroundColor: ['rgba(231, 76, 60, 0.7)', 'rgba(241, 196, 15, 0.7)', 'rgba(52, 152, 219, 0.7)']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: data.metricas_logs.titulo } } }
-            });
-
-        })
-        .catch(error => console.error('Error al mapear las gráficas:', error));
-</script>
 
 {% endblock %} ```
+
+{% block scripts %}
+<!-- Script para manejar la lógica de las gráficas de reportes -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/graficasReportes.js' %}"></script>
+    
+{% endblock %}
