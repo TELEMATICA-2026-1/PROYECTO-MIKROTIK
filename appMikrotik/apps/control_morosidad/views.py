@@ -16,7 +16,7 @@ import calendar
 
 
 # Usuario del sistema para logs automatizados
-system_user = User.objects.get(username='system')
+system_user = User.objects.get(username='Sistema')
 
 def obtenerConfiguracion():
     #Funcion para obtener la configuracion de morosidad, la crea si no existe
