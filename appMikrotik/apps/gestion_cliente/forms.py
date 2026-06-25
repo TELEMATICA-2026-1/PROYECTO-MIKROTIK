@@ -2,12 +2,8 @@ import ipaddress
 from django.forms import ModelForm, forms, BooleanField
 from core.models import Cliente, Plan
 from django.forms.widgets import CheckboxInput, Select
-<<<<<<< HEAD
 import re 
 import ipaddress
-=======
-import re
->>>>>>> 942f9598c2ff212e5980520498b90a75b55495d1
 from django import forms
 
 class PlanSelectWidget(Select):
@@ -38,17 +34,17 @@ class ClienteForm(ModelForm):
         initial=False
     )
 
-    direccionIP = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    direccionIP = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Ej: 192.168.10.50','inputmode': 'decimal','maxlength': '15','oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
     class Meta:
         model = Cliente
         fields = ['idPlan', 'nombre', 'cedula', 'celular', 'direccion', 'email', 'direccionIP']
         widgets = {
             'idPlan': PlanSelectWidget(attrs={'class': 'form-select'}),
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'cedula': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric'}),
-            'celular': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric'}),
-            'direccion': forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 3}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre completo'}),
+            'cedula': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')",'placeholder': 'Ej: 25123456','maxlength': '9'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')",'placeholder': 'Ej: 04141234567','maxlength': '11'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control mb-3','placeholder': 'Dirección detallada (Calle, casa, puntos de referencia)...','style': 'resize: vertical;', 'rows': 3}),
+            'email': forms.EmailInput(attrs={'class': 'form-control','placeholder': 'correo@cliente.com','autocomplete': 'email'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -98,7 +94,6 @@ class ClienteForm(ModelForm):
                 raise forms.ValidationError("Por favor, introduce una dirección más detallada para el equipo técnico (mínimo 15 caracteres).")
         
         return direccion
-<<<<<<< HEAD
 
     def clean_direccionIP(self):
         ip = self.cleaned_data.get('direccionIP')
@@ -132,34 +127,6 @@ class ClienteForm(ModelForm):
                 )
 
         return ip
-=======
-   
-    def clean_direccionIP(self):
-        ip_texto = self.cleaned_data.get('direccionIP')
-        
-        if not ip_texto:
-            raise forms.ValidationError("La dirección IP es obligatoria.")
-            
-        try:
-            ip_ingresada = ipaddress.ip_address(ip_texto.strip())
-            
-            
-            red_permitida = ipaddress.ip_network('192.168.10.0/24', strict=False)
-
-            if ip_ingresada not in red_permitida:
-                raise forms.ValidationError(
-                    f"Dirección IP fuera de rango. Debe pertenecer estrictamente al segmento {red_permitida}."
-                )
-                
-            if ip_ingresada == red_permitida.network_address or ip_ingresada == red_permitida.broadcast_address:
-                raise forms.ValidationError("No se puede asignar la dirección IP de red (.0) o de broadcast (.255).")
-                
-        except ValueError:
-            raise forms.ValidationError("El formato de la dirección IPv4 introducido no es válido.")
-
-        return ip_texto.strip()
-
->>>>>>> 942f9598c2ff212e5980520498b90a75b55495d1
     
     def clean(self):
         cleaned_data = super().clean()
