@@ -63,7 +63,7 @@ def crear_cliente(request):
         if form.is_valid():
             
             cliente = form.save(commit=False)
-            cliente.fecha = timezone.now()
+            cliente.fechaRegistro = timezone.now()
 
             if form.cleaned_data.get('exonerar_cliente'):
                 cliente.estado = 'Exonerado'
