@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/validations.css' %}">
+{% endblock %}
+
 {% block title %}Registrar Nuevo Cliente{% endblock %}
 
 <!-- Breadcrumb para mostrar la ruta de navegación dentro de la aplicación, con enlaces a las secciones anteriores y el título de la sección actual -->
@@ -13,29 +18,6 @@
     <div class="container p-4 bg-white  ">
 
         <div class="card-body">
-            <!-- Mostrar errores del formulario ya sea por validación o por otros motivos -->
-            {% if form.errors or error %}
-                    <div class="alert alert-danger alert-dismissible">
-                        <h5 class="alert-heading">Error al Registrar cliente</h5>
-                        <button type="button" class="position-absolute top-0 end-0 mt-3 me-3 bg-transparent border-0 p-0" data-bs-dismiss="alert">
-                            <img src="{% static 'images/boton_cerrar.svg' %}" alt="Cerrar" width="20" height="20">
-                        </button>
-                            
-                        <ul class="mb-0">
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                            {% for error in form.non_field_errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                            {% if error %}
-                                <li>{{ error }}</li>
-                            {% endif %} 
-                        </ul>
-                    </div>
-            {% endif %}
             
             <!-- Formulario para registrar un nuevo cliente -->
             <form action="{% url 'crear_cliente' %}" method="post" enctype="multipart/form-data">
@@ -50,29 +32,57 @@
                 <section class="contenedor">  <!-- Contenedor para los datos del cliente-->
                     <div class="row g-4">
                         <div class="col-md-6 ">
-                            <div class="mb-2">
+                            <div class="mb-2 {% if form.nombre.errors %}contenedor-error{% endif %}">
                                 <label class="form-label fst-italic text-muted small ">Nombre</label>
                                 {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                    <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.nombre.errors.0 }}
+                                </div>
+                            {% endif %}
                             </div>
 
                             <div class = "row g-4" >
-                                <div class="col-md-6 mb-2">
+                                <div class="col-md-6 mb-2 {% if form.cedula.errors %}contenedor-error{% endif %}">
                                     <label class="form-label fst-italic text-muted small mb-1">Rif</label>
                                     {{ form.cedula }}
+                                    {% if form.cedula.errors %}
+                                        <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                        <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.cedula.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                <div class="col-md-6 mb-2">
+
+                                <div class="col-md-6 mb-2 {% if form.celular.errors %}contenedor-error{% endif %}">
                                     <label class="form-label fst-italic text-muted small mb-1">Celular</label>
                                     {{ form.celular }}
+                                    {% if form.celular.errors %}
+                                        <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                        <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.celular.errors.0 }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         
+                        <div class="mb-3 {% if form.email.errors %}contenedor-error{% endif %}">
                             <label class="form-label fst-italic text-muted small mb-1">Correo Electrónico</label>
                             {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                    <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                            </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 {% if form.direccion.errors %}contenedor-error{% endif %}">
                             <label class="form-label fst-italic text-muted small">Dirección de Residencia</label>
                             {{ form.direccion }}
+                            {% if form.direccion.errors %}
+                                <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                    <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.direccion.errors.0 }}
+                                </div>
+                            {% endif %}
 
                             <div class = "row g-4">
                                 <div class="col-md-12 text-end">
@@ -116,9 +126,14 @@
                     </div>
 
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 {% if form.direccionIP.errors %}contenedor-error{% endif %}">
                             <label class="form-label fst-italic text-muted small mb-1">Direccion IPv4</label>
                             {{ form.direccionIP }}
+                            {% if form.direccionIP.errors %}
+                                <div class="alert alert-danger mt-1 mb-0 py-1 px-3 small" role="alert">
+                                    <strong><i class="bi bi-shield-slash-fill me-1"></i> Error:</strong> {{ form.direccionIP.errors.0 }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </section>

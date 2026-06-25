@@ -63,7 +63,7 @@ def crear_cliente(request):
         if form.is_valid():
             
             cliente = form.save(commit=False)
-            cliente.fecha = timezone.now()
+            cliente.fechaRegistro = timezone.now()
 
             if form.cleaned_data.get('exonerar_cliente'):
                 cliente.estado = 'Exonerado'
@@ -182,7 +182,7 @@ def borrar_cliente(request, id):
                 fecha=timezone.now()
             )
         
-        return redirect('gestion_clientes', 0)
+        return redirect('gestion_clientes')
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
 
 def api_tarjetas_dashboard(request):
