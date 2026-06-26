@@ -87,10 +87,15 @@
     }
   });
 
-  // Limpiar los campos de entrada al cargar la página para evitar mostrar valores anteriores, y resetear la variable de campo editado
+// Inicializar la vista al cargar la página
   document.addEventListener('DOMContentLoaded', () => {
-    if (usdEntrada) usdEntrada.value = '';
-    if (bsEntrada) bsEntrada.value = '';
     campoEditado = null;
+
+    // Verificar si ya existe un monto en USD y una tasa
+    if (usdEntrada && usdEntrada.value !== '' && tasaEntrada && tasaEntrada.value !== '') {
+      sanitizeNumericInput(usdEntrada); 
+      // Auto-calcular los Bolívares para rellenar el campo vacío
+      CambioUsd(); 
+    }
   });
 

@@ -122,7 +122,7 @@ TIME_ZONE = 'America/Caracas'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -141,7 +141,7 @@ STATICFILES_DIRS = [
 
 # Configuracion del router MikroTik
 
-MIKROTIK_HOST = '192.168.88.1'
+MIKROTIK_HOST = '192.168.10.1'
 MIKROTIK_USER = 'admin'
 MIKROTIK_PASSWORD = '12345'
 MIKROTIK_PORT = 8728
