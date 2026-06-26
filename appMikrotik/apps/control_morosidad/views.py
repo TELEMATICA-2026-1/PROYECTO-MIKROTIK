@@ -150,7 +150,7 @@ def panelMorosidad(request):
     todosClientes = Cliente.objects.filter(borrado=False, saldo__gt=0)
     
     #Filtro por nombre o cedula
-    filtroForm= FiltroClientesMorosos(request.GET or None)
+    filtroForm= FiltroClientesMorosos(request.POST or None)
     if filtroForm.is_valid():
         nombreCliente = filtroForm.cleaned_data.get('nombreCliente')
         if nombreCliente:

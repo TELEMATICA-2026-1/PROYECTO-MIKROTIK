@@ -230,8 +230,8 @@ def api_graficos_dashboard(request):
         series_exitos.append(log['exitos'])
         series_errores.append(log['errores'])
 
-        cobranzas_query = (
-             Cliente.objects.filter(borrado=False)
+    cobranzas_query = (
+             Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
              .values('estado')
             .annotate(total=Count('id'))
     )
