@@ -2,7 +2,8 @@ import ipaddress
 from django.forms import ModelForm, forms, BooleanField
 from core.models import Cliente, Plan
 from django.forms.widgets import CheckboxInput, Select
-import re
+import re 
+import ipaddress
 from django import forms
 
 class PlanSelectWidget(Select):
@@ -33,17 +34,17 @@ class ClienteForm(ModelForm):
         initial=False
     )
 
-    direccionIP = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    direccionIP = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Ej: 192.168.10.50','inputmode': 'decimal','maxlength': '15','oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
     class Meta:
         model = Cliente
         fields = ['idPlan', 'nombre', 'cedula', 'celular', 'direccion', 'email', 'direccionIP']
         widgets = {
             'idPlan': PlanSelectWidget(attrs={'class': 'form-select'}),
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'cedula': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric'}),
-            'celular': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric'}),
-            'direccion': forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 3}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre completo'}),
+            'cedula': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')",'placeholder': 'Ej: 25123456','maxlength': '9'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control','inputmode': 'numeric', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')",'placeholder': 'Ej: 04141234567','maxlength': '11'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control mb-3','placeholder': 'Dirección detallada (Calle, casa, puntos de referencia)...','style': 'resize: vertical;', 'rows': 3}),
+            'email': forms.EmailInput(attrs={'class': 'form-control','placeholder': 'correo@cliente.com','autocomplete': 'email'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -93,32 +94,39 @@ class ClienteForm(ModelForm):
                 raise forms.ValidationError("Por favor, introduce una dirección más detallada para el equipo técnico (mínimo 15 caracteres).")
         
         return direccion
-   
+
     def clean_direccionIP(self):
-        ip_texto = self.cleaned_data.get('direccionIP')
+        ip = self.cleaned_data.get('direccionIP')
         
-        if not ip_texto:
-            raise forms.ValidationError("La dirección IP es obligatoria.")
+        if ip:
+            ip = ip.strip()
             
-        try:
-            ip_ingresada = ipaddress.ip_address(ip_texto.strip())
+            # 1. Validar formato IPv4 básico
+            try:
+                ip_obj = ipaddress.IPv4Address(ip)
+            except ValueError:
+                raise forms.ValidationError("La dirección IP no tiene un formato IPv4 válido.")
             
+            # 2. Definir el pool único
+            POOL_CLIENTES = ipaddress.IPv4Network('192.168.10.0/24')
             
-            red_permitida = ipaddress.ip_network('192.168.10.0/24', strict=False)
-
-            if ip_ingresada not in red_permitida:
+            # 3. Validar que pertenezca al rango
+            if ip_obj not in POOL_CLIENTES:
+                raise forms.ValidationError(f"La IP debe pertenecer al rango autorizado ({POOL_CLIENTES}).")
+            
+            # 4. Validar IPs críticas de una sola vez
+            ips_prohibidas = [
+                POOL_CLIENTES.network_address,      # 192.168.10.0 (Red)
+                POOL_CLIENTES.network_address + 1,  # 192.168.10.1 (Gateway/MikroTik)
+                POOL_CLIENTES.broadcast_address     # 192.168.10.255 (Broadcast)
+            ]
+            
+            if ip_obj in ips_prohibidas:
                 raise forms.ValidationError(
-                    f"Dirección IP fuera de rango. Debe pertenecer estrictamente al segmento {red_permitida}."
+                    "Esta IP está reservada para la infraestructura de red (Red, Gateway o Broadcast) y no puede asignarse."
                 )
-                
-            if ip_ingresada == red_permitida.network_address or ip_ingresada == red_permitida.broadcast_address:
-                raise forms.ValidationError("No se puede asignar la dirección IP de red (.0) o de broadcast (.255).")
-                
-        except ValueError:
-            raise forms.ValidationError("El formato de la dirección IPv4 introducido no es válido.")
 
-        return ip_texto.strip()
-
+        return ip
     
     def clean(self):
         cleaned_data = super().clean()
