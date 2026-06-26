@@ -55,7 +55,8 @@ def generarFacturaParaCliente(cliente, fechaFactura):
         fecha= fechaFactura   
     )
     cliente.saldo += monto
-    cliente.save(update_fields=['saldo'])
+    cliente.estado = 'Pendiente'
+    cliente.save(update_fields=['saldo','estado'])
     
     return f"Generada factura para {cliente.nombre} (Cedula {cliente.cedula}) por $ {monto}"
 
@@ -70,7 +71,7 @@ def generarFacturasDelMes():
     if hoy.day != config.diaCobroMensual:
         return []
     
-    clientes = Cliente.objects.filter(borrado=False)
+    clientes = Cliente.objects.filter(borrado=False, saldo=0, estado='Solvente')
     totalFactura = []
     fechaFactura = timezone.make_aware(datetime.combine(hoy, datetime.min.time()))
     
@@ -180,6 +181,7 @@ def panelMorosidad(request):
         form = ConfiguracionMorosidadForm(instance=config)
     
     #Paginacion de clientes morosos
+    todosClientes = todosClientes.order_by('nombre')
     paginator = Paginator(todosClientes, 10)
     query_params = request.GET.copy()
 
