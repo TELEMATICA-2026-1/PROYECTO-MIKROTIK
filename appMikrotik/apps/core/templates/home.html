@@ -30,7 +30,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-solventes">
                 <div class="card-body">
                     <h5 class="card-title h2">Solventes</h5>
-                    <p class="card-text"><strong>15</strong> disfrutando servicio</p>
+                    <p class="card-text"><strong id="tarjeta-solventes">0</strong> disfrutando servicio</p>
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-exonerados">
                 <div class="card-body">
                     <h5 class="card-title h2">Exonerados</h5>
-                    <p class="card-text"><strong>2</strong> exonerados de pagos</p>
+                    <p class="card-text"><strong id="tarjeta-exonerados">0</strong> exonerados de pagos</p>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-pendientes">
                 <div class="card-body">
                     <h5 class="card-title h2">Pendientes</h5>
-                    <p class="card-text"><strong>3</strong> en espera de pago</p>
+                    <p class="card-text"><strong id="tarjeta-pendientes">0</strong> en espera de pago</p>
                 </div>
             </div>
         </div>
@@ -57,7 +57,34 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
             <div class="card target-resumen bg-desconectados">
                 <div class="card-body">
                     <h5 class="card-title h2">Desconectados</h5>
-                    <p class="card-text"><strong>13</strong> fuera de servicio</p>
+                    <p class="card-text"><strong id="tarjeta-desconectados">0</strong> fuera de servicio</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row mt-3 g-4 mb-3">
+        <!--Grafica de historicos de Logs-->
+        <div class="col-md-7 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="font-weight-bold mb-0">Histórico de éxito y errores (Logs)</h4>
+            </div>
+            <div class="p-3 bg-chart-logs shadow-sm h-100 d-flex flex-column">
+                <div class="position-relative flex-grow-1" style="min-height: 250px;">
+                    <canvas id="graficaLogsDash"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!--Grafica de Rstado de cobranzas-->
+        <div class="col-md-5 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="font-weight-bold mb-0">Estado de cobranzas</h4>
+            </div>
+            <div class="p-3 bg-chart-cobranzas shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
+                <div class="position-relative w-100 flex-grow-1" style="min-height: 250px;">
+                    <canvas id="graficaCobranzasDash"></canvas>
                 </div>
             </div>
         </div>
@@ -65,4 +92,10 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
     
     
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/chart.js' %}"></script>
+
+<script src="{% static 'js/graficaLogsyCobranza.js' %}"> </script>
 {% endblock %}

@@ -29,7 +29,7 @@ def gestion_pago(request,id):
             fecha_fin = filtro.cleaned_data.get('fecha_fin')
 
             if nombreCliente:
-                todos_pagos = todos_pagos.filter(Q(idCliente__nombre__icontains=nombreCliente) | Q(idCliente__cedula__icontains=nombreCliente))
+                todos_pagos = todos_pagos.filter(Q(idCliente__nombre__icontains=nombreCliente) | Q(idCliente__cedula__istartswith=nombreCliente))
 
             if fecha_inicio and fecha_fin:
                 todos_pagos = todos_pagos.filter(fecha__range=(fecha_inicio, fecha_fin))
@@ -67,8 +67,6 @@ def crear_pago(request,id):
 
         if form.is_valid():
             montoUSD = form.cleaned_data.get('montoUSD')
-            fecha = form.cleaned_data.get('fecha')
-            cliente.fecha = fecha
             cliente.saldo -= montoUSD
 
             if cliente.saldo < 0:
@@ -103,7 +101,6 @@ Tasa: {nuevo_pago.tasa}""",
     else:
         form = PagoForm()
     
-    print(form)
     return render(request, 'crear_pago.html', {'form': form, 'cliente': cliente, 'fecha': timezone.now()})
 
 
@@ -128,6 +125,7 @@ def modificar_pago(request, id):
             cliente.saldo -= diferencia
                 
             if cliente.saldo < 0:
+                cliente.saldo += diferencia
                 return render(request, 'modificar_pago.html', {
                     'form': form, 
                     'cliente': cliente, 
