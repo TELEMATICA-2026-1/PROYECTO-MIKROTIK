@@ -70,7 +70,7 @@
                                 <td>{{ pago.fecha|date:'j \\d\\e F \\d\\e Y' }}</td>
                                 <td>{{ pago.idCliente.cedula }}</td>
                                 <td>{{ pago.idCliente.nombre }}</td>
-                                <td>{{ pago.montoUSD }}</td>
+                                <td>{{ pago.montoUSD|floatformat:'2u' }}</td>
                                 <td class="acciones-col text-nowrap">
                                     <!-- Botones para editar el pago o ver sus detalles, con íconos representativos -->
                                     <a

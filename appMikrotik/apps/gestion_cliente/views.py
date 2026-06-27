@@ -63,7 +63,7 @@ def crear_cliente(request):
         if form.is_valid():
             
             cliente = form.save(commit=False)
-            cliente.fecha = timezone.now()
+            cliente.fechaRegistro = timezone.now()
 
             if form.cleaned_data.get('exonerar_cliente'):
                 cliente.estado = 'Exonerado'
@@ -182,7 +182,7 @@ def borrar_cliente(request, id):
                 fecha=timezone.now()
             )
         
-        return redirect('gestion_clientes', 0)
+        return redirect('gestion_clientes')
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
 
 def api_tarjetas_dashboard(request):
@@ -230,8 +230,8 @@ def api_graficos_dashboard(request):
         series_exitos.append(log['exitos'])
         series_errores.append(log['errores'])
 
-        cobranzas_query = (
-             Cliente.objects.filter(borrado=False)
+    cobranzas_query = (
+             Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
              .values('estado')
             .annotate(total=Count('id'))
     )

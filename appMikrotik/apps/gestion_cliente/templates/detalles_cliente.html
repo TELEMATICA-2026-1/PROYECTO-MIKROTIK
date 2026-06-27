@@ -61,17 +61,17 @@
 
                 <div class="col-md-3 mb-2">
                     <label class="form-label fst-italic text-muted small mb-1">Precio (USD)</label>
-                    <input id="id_plan_precioUSD" type="text" class="form-control bg-light" value="{{ cliente.idPlan.precioUSD }}" readonly>
+                    <input id="id_plan_precioUSD" type="text" class="form-control bg-light" value="{{ cliente.idPlan.precioUSD|floatformat:'2u' }}" readonly>
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label fst-italic text-muted small mb-1">Velocidad de Subida (Mbps)</label>
-                    <input id="id_plan_velocidad_subida" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_subida }}" readonly>
+                    <input id="id_plan_velocidad_subida" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_subida|floatformat:'2u' }}" readonly>
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label fst-italic text-muted small mb-1">Velocidad de Bajada (Mbps)</label>
-                    <input id="id_plan_velocidad_bajada" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_bajada }}" readonly>
+                    <input id="id_plan_velocidad_bajada" type="text" class="form-control bg-light" value="{{ cliente.idPlan.velocidad_bajada|floatformat:'2u' }}" readonly>
                 </div>
             </div>
 
@@ -89,7 +89,7 @@
 
                 <div class="col-md-3">
                     <label class="form-label fst-italic text-muted small mb-1">Saldo a cancelar (USD)</label>
-                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo }}" readonly>
+                    <input type="text" class="form-control bg-light" value="{{ cliente.saldo|floatformat:'2u' }}" readonly>
                 </div>
             
             </div>
