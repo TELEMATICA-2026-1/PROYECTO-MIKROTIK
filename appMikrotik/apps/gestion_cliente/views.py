@@ -186,7 +186,24 @@ def borrar_cliente(request, id):
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
 
 def api_tarjetas_dashboard(request):
+    # Capturamos el filtro temporal enviado por el frontend (?filtro=7dias, mes o actualmente)
+    filtro = request.GET.get('filtro', 'actualmente')
+    ahora = timezone.now()
     
+    # Base query de clientes no borrados
+    clientes_filtrados = Cliente.objects.filter(borrado=False)
+    
+    # Aplicamos la segmentación basándonos en la fecha de registro del cliente
+    if filtro == '7dias':
+        fecha_inicio = ahora - timedelta(days=7)
+        clientes_filtrados = clientes_filtrados.filter(fechaRegistro__gte=fecha_inicio)
+    elif filtro == 'mes':
+        # Primer día del mes actual a las 00:00:00
+        inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        clientes_filtrados = clientes_filtrados.filter(fechaRegistro__gte=inicio_mes)
+    # Si es 'actualmente', no se añade filtro inferior (trae todo el histórico)
+
+    # Conteo con los queryset filtrados
     solventes = Cliente.objects.filter(estado='Solvente', borrado=False).count()
     exonerados = Cliente.objects.filter(estado='Exonerado', borrado=False).count()
     pendientes = Cliente.objects.filter(estado='Pendiente', borrado=False).count()
@@ -202,10 +219,27 @@ def api_tarjetas_dashboard(request):
     return JsonResponse(data)
 
 def api_graficos_dashboard(request):
-    hace_7_dias = timezone.now() - timedelta(days=7)
+    filtro = request.GET.get('filtro', 'actualmente')
+    ahora = timezone.now()
     
+    # --- 1. FILTRADO PARA EL HISTÓRICO DE LOGS ---
+    logs_base = Logs.objects.all()
+    
+    if filtro == '7dias':
+        fecha_inicio_logs = ahora - timedelta(days=7)
+        logs_base = logs_base.filter(fecha__gte=fecha_inicio_logs)
+    elif filtro == 'mes':
+        inicio_mes_logs = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        logs_base = logs_base.filter(fecha__gte=inicio_mes_logs)
+    else:
+        # Por defecto para la gráfica de evolución semanal de logs, si es 'actualmente'
+        # podemos mostrar los últimos 30 días para que el gráfico no se sature de datos en el eje X
+        fecha_inicio_logs = ahora - timedelta(days=30)
+        logs_base = logs_base.filter(fecha__gte=fecha_inicio_logs)
+
+    # Agrupación y formateo de los logs procesados
     logs_query = (
-        Logs.objects.filter(fecha__gte=hace_7_dias)
+        logs_base
         .annotate(dia=TruncDay('fecha'))
         .values('dia')
         .annotate(
@@ -225,18 +259,37 @@ def api_graficos_dashboard(request):
     }
     
     for log in logs_query:
-        dia_en = log['dia'].strftime('%a')
-        labels_logs.append(dias_es.get(dia_en, dia_en))
-        series_exitos.append(log['exitos'])
-        series_errores.append(log['errores'])
+        if log['dia']:
+            # Si el filtro es de más de un mes, tu frontend preferirá ver fechas cortas "DD/MM" en vez de días de la semana
+            if filtro == 'actualmente':
+                label_final = log['dia'].strftime('%d/%m')
+            else:
+                dia_en = log['dia'].strftime('%a')
+                label_final = dias_es.get(dia_en, dia_en)
+                
+            labels_logs.append(label_final)
+            series_exitos.append(log['exitos'])
+            series_errores.append(log['errores'])
+
+    # --- 2. FILTRADO PARA EL ESTADO DE COBRANZAS (DONA) ---
+    clientes_cobranzas = Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
+    
+    if filtro == '7dias':
+        clientes_cobranzas = clientes_cobranzas.filter(fechaRegistro__gte=ahora - timedelta(days=7))
+    elif filtro == 'mes':
+        clientes_cobranzas = clientes_cobranzas.filter(fechaRegistro__gte=ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
 
     cobranzas_query = (
-             Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
-             .values('estado')
-            .annotate(total=Count('id'))
+        clientes_cobranzas
+        .values('estado')
+        .annotate(total=Count('id'))
     )
     
     distribucion_cobranzas = {item['estado']: item['total'] for item in cobranzas_query}
+    
+    if 'Solvente' not in distribucion_cobranzas: distribucion_cobranzas['Solvente'] = 0
+    if 'Pendiente' not in distribucion_cobranzas: distribucion_cobranzas['Pendiente'] = 0
+
     json_final = {
         'historico_logs': {
             'labels': labels_logs,
