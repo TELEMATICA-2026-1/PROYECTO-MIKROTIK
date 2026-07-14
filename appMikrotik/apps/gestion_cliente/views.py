@@ -260,7 +260,7 @@ def api_graficos_dashboard(request):
             series_errores.append(log['errores'])
 
     # --- 2. FILTRADO PARA EL ESTADO DE COBRANZAS (DONA) ---
-    # Estado financiero global en tiempo real
+    # Refleja el estado financiero global en tiempo real
     clientes_cobranzas = Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
 
     cobranzas_query = (
