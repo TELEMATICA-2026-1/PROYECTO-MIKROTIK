@@ -108,17 +108,17 @@ class ClienteForm(ModelForm):
                 raise forms.ValidationError("La dirección IP no tiene un formato IPv4 válido.")
             
             # 2. Definir el pool único
-            POOL_CLIENTES = ipaddress.IPv4Network('192.168.10.0/24')
+            POOL_CLIENTES = ipaddress.IPv4Network('192.168.88.0/22')
             
             # 3. Validar que pertenezca al rango
             if ip_obj not in POOL_CLIENTES:
-                raise forms.ValidationError(f"La IP debe pertenecer al rango autorizado ({POOL_CLIENTES}).")
+                raise forms.ValidationError(f"La IP debe pertenecer al rango autorizado (192.168.88.0).")
             
             # 4. Validar IPs críticas de una sola vez
             ips_prohibidas = [
-                POOL_CLIENTES.network_address,      # 192.168.10.0 (Red)
-                POOL_CLIENTES.network_address + 1,  # 192.168.10.1 (Gateway/MikroTik)
-                POOL_CLIENTES.broadcast_address     # 192.168.10.255 (Broadcast)
+                POOL_CLIENTES.network_address,      # 192.168.88.0 (Red)
+                POOL_CLIENTES.network_address + 1,  # 192.168.88.1 (Gateway/MikroTik)
+                POOL_CLIENTES.broadcast_address     # 192.168.91.255 (Broadcast)
             ]
             
             if ip_obj in ips_prohibidas:

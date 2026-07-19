@@ -5,7 +5,7 @@ from .forms import ClienteForm, FiltroClientes
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, Q
-from django.db.models.functions import TruncDay
+from django.db.models.functions import TruncDay, TruncHour
 from datetime import timedelta
 from django.core.paginator import Paginator
 from core.autenticacion import grupo_requerido
@@ -186,8 +186,7 @@ def borrar_cliente(request, id):
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
 
 def api_tarjetas_dashboard(request):
-
-    # Conteo con los queryset filtrados
+    # Conteo global absoluto de la base de datos sin importar filtros temporales
     solventes = Cliente.objects.filter(estado='Solvente', borrado=False).count()
     exonerados = Cliente.objects.filter(estado='Exonerado', borrado=False).count()
     pendientes = Cliente.objects.filter(estado='Pendiente', borrado=False).count()
@@ -212,25 +211,26 @@ def api_graficos_dashboard(request):
     if filtro == '7dias':
         fecha_inicio_logs = ahora - timedelta(days=7)
         logs_base = logs_base.filter(fecha__gte=fecha_inicio_logs)
+        logs_query = logs_base.annotate(periodo=TruncDay('fecha'))
     elif filtro == 'mes':
         inicio_mes_logs = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         logs_base = logs_base.filter(fecha__gte=inicio_mes_logs)
+        logs_query = logs_base.annotate(periodo=TruncDay('fecha'))
     else:
-        # Por defecto para la gráfica de logs al seleccionar "Actualmente"
-        # se muestran los logs de las últimas 24 horas.
-        fecha_inicio_logs = ahora - timedelta(days=1)
+        # 'actualmente' -> Últimas 24 horas reales agrupadas por HORA
+        fecha_inicio_logs = ahora - timedelta(hours=24)
         logs_base = logs_base.filter(fecha__gte=fecha_inicio_logs)
+        logs_query = logs_base.annotate(periodo=TruncHour('fecha'))
 
-    # Agrupación y formateo de los logs procesados
+    # Agrupación y formateo de los logs procesados según el periodo anotado
     logs_query = (
-        logs_base
-        .annotate(dia=TruncDay('fecha'))
-        .values('dia')
+        logs_query
+        .values('periodo')
         .annotate(
             exitos=Count('id', filter=Q(error=False)),
             errores=Count('id', filter=Q(error=True))
         )
-        .order_by('dia')
+        .order_by('periodo')
     )
     
     labels_logs = []
@@ -243,12 +243,16 @@ def api_graficos_dashboard(request):
     }
     
     for log in logs_query:
-        if log['dia']:
-            # Si el filtro es de más de un mes, tu frontend preferirá ver fechas cortas "DD/MM" en vez de días de la semana
+        if log['periodo']:
             if filtro == 'actualmente':
-                label_final = log['dia'].strftime('%d/%m')
+                # Si es por horas, formateamos como "14:00"
+                label_final = log['periodo'].strftime('%H:%M')
+            elif filtro == 'mes':
+                # Si es el mes entero, formato "DD/MM"
+                label_final = log['periodo'].strftime('%d/%m')
             else:
-                dia_en = log['dia'].strftime('%a')
+                # Si son 7 días, el nombre del día traducido
+                dia_en = log['periodo'].strftime('%a')
                 label_final = dias_es.get(dia_en, dia_en)
                 
             labels_logs.append(label_final)
@@ -256,8 +260,8 @@ def api_graficos_dashboard(request):
             series_errores.append(log['errores'])
 
     # --- 2. FILTRADO PARA EL ESTADO DE COBRANZAS (DONA) ---
+    # Refleja el estado financiero global en tiempo real
     clientes_cobranzas = Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
-    
 
     cobranzas_query = (
         clientes_cobranzas
