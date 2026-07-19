@@ -186,22 +186,6 @@ def borrar_cliente(request, id):
     return render(request, 'confirmar_borrar.html', {'cliente': cliente})
 
 def api_tarjetas_dashboard(request):
-    # Capturamos el filtro temporal enviado por el frontend (?filtro=7dias, mes o actualmente)
-    filtro = request.GET.get('filtro', 'actualmente')
-    ahora = timezone.now()
-    
-    # Base query de clientes no borrados
-    clientes_filtrados = Cliente.objects.filter(borrado=False)
-    
-    # Aplicamos la segmentación basándonos en la fecha de registro del cliente
-    if filtro == '7dias':
-        fecha_inicio = ahora - timedelta(days=7)
-        clientes_filtrados = clientes_filtrados.filter(fechaRegistro__gte=fecha_inicio)
-    elif filtro == 'mes':
-        # Primer día del mes actual a las 00:00:00
-        inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        clientes_filtrados = clientes_filtrados.filter(fechaRegistro__gte=inicio_mes)
-    # Si es 'actualmente', no se añade filtro inferior (trae todo el histórico)
 
     # Conteo con los queryset filtrados
     solventes = Cliente.objects.filter(estado='Solvente', borrado=False).count()
@@ -232,9 +216,9 @@ def api_graficos_dashboard(request):
         inicio_mes_logs = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         logs_base = logs_base.filter(fecha__gte=inicio_mes_logs)
     else:
-        # Por defecto para la gráfica de evolución semanal de logs, si es 'actualmente'
-        # podemos mostrar los últimos 30 días para que el gráfico no se sature de datos en el eje X
-        fecha_inicio_logs = ahora - timedelta(days=30)
+        # Por defecto para la gráfica de logs al seleccionar "Actualmente"
+        # se muestran los logs de las últimas 24 horas.
+        fecha_inicio_logs = ahora - timedelta(days=1)
         logs_base = logs_base.filter(fecha__gte=fecha_inicio_logs)
 
     # Agrupación y formateo de los logs procesados
@@ -274,10 +258,6 @@ def api_graficos_dashboard(request):
     # --- 2. FILTRADO PARA EL ESTADO DE COBRANZAS (DONA) ---
     clientes_cobranzas = Cliente.objects.filter(borrado=False, estado__in=['Solvente', 'Pendiente'])
     
-    if filtro == '7dias':
-        clientes_cobranzas = clientes_cobranzas.filter(fechaRegistro__gte=ahora - timedelta(days=7))
-    elif filtro == 'mes':
-        clientes_cobranzas = clientes_cobranzas.filter(fechaRegistro__gte=ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
 
     cobranzas_query = (
         clientes_cobranzas

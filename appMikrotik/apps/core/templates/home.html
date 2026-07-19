@@ -68,7 +68,14 @@ aqui se alojan elementos principales que proporcionan una vision general del sis
         <!--Grafica de historicos de Logs-->
         <div class="col-md-7 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h4 class="font-weight-bold mb-0">Histórico de éxito y errores (Logs)</h4>
+                <h4 class="font-weight-bold mb-0">Histórico de éxito y errores (Logs)</h4> 
+                <div class="d-flex align-items-center mt-2 mt-md-0">
+                    <select id="filtroTemporal" class="form-control mr-2 font-weight-bold text-secondary shadow-sm" style="width: 170px;">
+                        <option value="actualmente" selected>Actualmente ▼</option>
+                        <option value="7dias">Últimos 7 días</option>
+                        <option value="mes">Último mes</option>
+                    </select>
+                </div>
             </div>
             <div class="p-3 bg-chart-logs shadow-sm h-100 d-flex flex-column">
                 <div class="position-relative flex-grow-1" style="min-height: 250px;">
