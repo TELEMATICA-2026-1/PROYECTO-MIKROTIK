@@ -138,17 +138,39 @@
                                 <li class="page-item disabled"><span class="page-link">Anterior</span></li>
                             {% endif %}
 
-                            {% for num in clientes.paginator.page_range %}
-                                {% if clientes.number == num %}
-                                    <li class="page-item active" aria-current="page">
-                                        <span class="page-link">{{ num }}</span>
-                                    </li>
+                            {% with current=clientes.number total=clientes.paginator.num_pages %}
+                                {% if total <= 10 %}
+                                    {% for num in clientes.paginator.page_range %}
+                                        {% if clientes.number == num %}
+                                            <li class="page-item active" aria-current="page">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}{{ query_string }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% else %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}{{ query_string }}">{{ num }}</a>
-                                    </li>
+                                    {% for num in clientes.paginator.page_range %}
+                                        {% if num == 1 or num == total or num >= current|add:-2 and num <= current|add:2 %}
+                                            {% if clientes.number == num %}
+                                                <li class="page-item active" aria-current="page">
+                                                    <span class="page-link">{{ num }}</span>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ num }}{{ query_string }}">{{ num }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% elif num == 2 and current > 4 %}
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        {% elif num == total|add:-1 and current < total|add:-3 %}
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endif %}
-                            {% endfor %}
+                            {% endwith %}
 
                             {% if clientes.has_next %}
                                 <li class="page-item">

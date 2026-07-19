@@ -13,5 +13,7 @@ urlpatterns = [
     path('borrar_cliente/<int:id>/', views.borrar_cliente, name='confirmar_borrado'),
     path('api/tarjetas-dashboard/', views.api_tarjetas_dashboard, name='api_tarjetas_dashboard'),
     path('api/graficos-dashboard/', views.api_graficos_dashboard, name='api_graficos_dashboard'),
+    path('carga_clientes/', views.carga_clientes, name='carga_clientes'),
+    path('api/progreso-importacion/<str:request_id>/', views.progreso_importacion, name='progreso_importacion'),
     path('detalles_cliente/<int:id>/', views.detalles_cliente, name='detalles_cliente')
 ]
