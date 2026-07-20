@@ -22,7 +22,7 @@ body {
     display: block !important;
     width: 480px !important; 
     margin: 0 auto !important;
-
+}
 /* TEXTOS */
 .text-white {
     color: #ffffff !important;
@@ -133,4 +133,85 @@ body {
     font-size: 28px !important;
 }
 
+/* Contenedor del toast fijado en la esquina superior derecha */
+.toast-container-custom {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+}
+
+/* Estilos para el titulo del toast */
+#loginToast .toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Título del toast */
+#loginToast .toast-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #7f1d1d;
+    margin: 0;
+}
+
+/* Separaciones entre el titulo y el mensaje */
+#loginToast .toast-body {
+    padding-top: 0.25rem;
+}
+
+/* Icono del toast */
+#loginToast .toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+/* Ajustes para alinear título y mensaje */
+#loginToast .toast-header {
+    gap: 0.5rem;
+}
+
+/* Estilo visual del toast de error */
+#loginToast {
+    min-width: 280px;
+    max-width: 360px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+    color: #7f1d1d;
+    overflow: hidden;
+    padding: 0.6rem 0.75rem;
+    position: relative;
+}
+
+/* Texto del cuerpo del toast */
+#loginToast .toast-body {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #7f1d1d;
+    padding-right: 2.5rem; /* deja espacio para el botón */
+}
+
+/* Botón de cierre del toast*/ 
+#loginToast .btn-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+
+}
+
+/* Asegura que el icono por defecto de .btn-close no sea alterado */
+#loginToast .btn-close::after,
+#loginToast .btn-close::before {
+    filter: none;
+}
+
+#loginToast .btn-close:hover {
+    opacity: 1;
 }

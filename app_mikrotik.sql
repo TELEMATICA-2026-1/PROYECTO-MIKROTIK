@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 15, 2026 at 01:30 AM
+-- Generation Time: Jul 19, 2026 at 05:00 PM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -193,9 +193,9 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$1200000$mlvYeiAdd9jkhmOcIzvzUi$8TCA9d3h7BtV4v+vvvID4cs3eLEdbT4HRyVSJbBbavA=', '2026-06-14 13:51:17.922208', 1, 'admin', '', '', '', 1, 1, '2026-05-25 21:26:02.958922'),
-(2, 'pbkdf2_sha256$1200000$dB7kjlgpZvvb7YS7Gvloya$69BJ5I7iNF0bgfaS2gpZEV2fSzLRWtHfSXJOUBD3bDI=', '2026-06-04 01:50:34.142596', 0, 'cajero', 'Sr. Cajero', 'Cajin', 'cajero@gmail.com', 0, 1, '2026-06-02 00:21:58.000000'),
-(3, 'pbkdf2_sha256$1200000$x8fDmCj7wsanWSXysTL1I5$Kx+NuVPs3nWvs8MOb3/RpwBoJIvTRFnJOcPgWhYcNFE=', '2026-06-02 02:33:56.253160', 0, 'soporte', 'Sr. Soporte', 'Soportin', 'soporte@gmail.com', 0, 1, '2026-06-02 00:23:19.000000'),
+(1, 'pbkdf2_sha256$1200000$mlvYeiAdd9jkhmOcIzvzUi$8TCA9d3h7BtV4v+vvvID4cs3eLEdbT4HRyVSJbBbavA=', '2026-07-19 12:37:02.791124', 1, 'admin', '', '', '', 1, 1, '2026-05-25 21:26:02.958922'),
+(2, 'pbkdf2_sha256$1200000$dB7kjlgpZvvb7YS7Gvloya$69BJ5I7iNF0bgfaS2gpZEV2fSzLRWtHfSXJOUBD3bDI=', '2026-06-17 14:52:27.106474', 0, 'cajero', 'Sr. Cajero', 'Cajin', 'cajero@gmail.com', 0, 1, '2026-06-02 00:21:58.000000'),
+(3, 'pbkdf2_sha256$1200000$x8fDmCj7wsanWSXysTL1I5$Kx+NuVPs3nWvs8MOb3/RpwBoJIvTRFnJOcPgWhYcNFE=', '2026-06-17 14:52:48.305331', 0, 'soporte', 'Sr. Soporte', 'Soportin', 'soporte@gmail.com', 0, 1, '2026-06-02 00:23:19.000000'),
 (4, '!F6tXB6FKHqJJ6vLSYrhQYLiI23Qs5bo8Rm7RIHAD', NULL, 0, 'Sistema', '', '', '', 1, 1, '2026-06-14 14:02:31.000000');
 
 -- --------------------------------------------------------
@@ -245,6 +245,27 @@ CREATE TABLE IF NOT EXISTS `auth_user_user_permissions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `control_morosidad_configuracionmorosidad`
+--
+
+DROP TABLE IF EXISTS `control_morosidad_configuracionmorosidad`;
+CREATE TABLE IF NOT EXISTS `control_morosidad_configuracionmorosidad` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `diasGracia` smallint UNSIGNED NOT NULL,
+  `diaCobroMensual` smallint UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`)
+) ;
+
+--
+-- Dumping data for table `control_morosidad_configuracionmorosidad`
+--
+
+INSERT INTO `control_morosidad_configuracionmorosidad` (`id`, `diasGracia`, `diaCobroMensual`) VALUES
+(1, 3, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `core_cliente`
 --
 
@@ -264,14 +285,7 @@ CREATE TABLE IF NOT EXISTS `core_cliente` (
   `fechaRegistro` datetime(6) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `core_cliente_idPlan_id_6eca7a1d` (`idPlan_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `core_cliente`
---
-
-INSERT INTO `core_cliente` (`id`, `nombre`, `cedula`, `celular`, `direccion`, `email`, `direccionIP`, `saldo`, `estado`, `borrado`, `idPlan_id`, `fechaRegistro`) VALUES
-(1, 'Cliente', '22333444', '04221112233', 'CALLE CLIENTE CASA CLIENTE', 'cliente@gmail.com', '192.168.1.1', 5.00, 'Pendiente', 0, 1, '2026-06-04 02:56:27.873355');
+) ENGINE=MyISAM AUTO_INCREMENT=3159 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -287,14 +301,7 @@ CREATE TABLE IF NOT EXISTS `core_factura` (
   `idCliente_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `core_factura_idCliente_id_64b764a2` (`idCliente_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `core_factura`
---
-
-INSERT INTO `core_factura` (`id`, `montoUSD`, `fecha`, `idCliente_id`) VALUES
-(1, 65.00, '2026-06-01 22:21:06.712451', 1);
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -312,15 +319,7 @@ CREATE TABLE IF NOT EXISTS `core_logs` (
   `idPersonal_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `core_logs_idPersonal_id_50adcf8a` (`idPersonal_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `core_logs`
---
-
-INSERT INTO `core_logs` (`id`, `modulo`, `mensaje`, `error`, `fecha`, `idPersonal_id`) VALUES
-(1, 'Gestión de Clientes', '\n                Registró al nuevo cliente Cliente (Cédula: 22333444).\n                Celular: 04221112233\n                Email: cliente@gmail.com\n                Direccion: CALLE CLIENTE CASA CLIENTE\n                Plan: Basico \n                Direccion Ip: 192.168.1.1\n                Estado: Pendiente\n                ', 0, '2026-06-01 22:21:06.717290', 1),
-(2, 'Gestion de pagos', 'Registró un nuevo pago para el cliente Cliente (Cédula: 22333444). \nMonto: 65$\nTasa: 557.97', 0, '2026-06-01 22:39:16.595017', 1);
+) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -341,14 +340,7 @@ CREATE TABLE IF NOT EXISTS `core_pago` (
   PRIMARY KEY (`id`),
   KEY `core_pago_idCliente_id_848ebb17` (`idCliente_id`),
   KEY `core_pago_idPersonal_id_aed299e1` (`idPersonal_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `core_pago`
---
-
-INSERT INTO `core_pago` (`id`, `montoUSD`, `tasa`, `fecha`, `comprobante`, `idCliente_id`, `idPersonal_id`, `metodo`) VALUES
-(1, 60.00, 557.97, '2026-06-01 22:37:44.000000', 'comprobantes/2026/06/01/Cien_anos_de_soledad_T6uU2N6.png', 1, 1, 'Efectivo $');
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -393,21 +385,7 @@ CREATE TABLE IF NOT EXISTS `django_admin_log` (
   PRIMARY KEY (`id`),
   KEY `django_admin_log_content_type_id_c4bce8eb` (`content_type_id`),
   KEY `django_admin_log_user_id_c564eba6` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `django_admin_log`
---
-
-INSERT INTO `django_admin_log` (`id`, `action_time`, `object_id`, `object_repr`, `action_flag`, `change_message`, `content_type_id`, `user_id`) VALUES
-(8, '2026-06-14 14:02:31.528286', '4', 'Sistema', 1, '[{\"added\": {}}]', 4, 1),
-(9, '2026-06-14 14:02:57.651137', '4', 'Sistema', 2, '[{\"changed\": {\"fields\": [\"Staff status\", \"Groups\"]}}]', 4, 1),
-(2, '2026-06-02 00:19:05.314196', '1', 'asistente_administrativo', 1, '[{\"added\": {}}]', 2, 1),
-(3, '2026-06-02 00:19:52.706253', '2', 'soporte', 1, '[{\"added\": {}}]', 2, 1),
-(4, '2026-06-02 00:21:59.691660', '2', 'cajero', 1, '[{\"added\": {}}]', 4, 1),
-(5, '2026-06-02 00:22:56.746359', '2', 'cajero', 2, '[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\", \"Groups\"]}}]', 4, 1),
-(6, '2026-06-02 00:23:20.577895', '3', 'soporte', 1, '[{\"added\": {}}]', 4, 1),
-(7, '2026-06-02 00:23:41.966914', '3', 'soporte', 2, '[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\", \"Groups\"]}}]', 4, 1);
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -456,7 +434,7 @@ CREATE TABLE IF NOT EXISTS `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `django_migrations`
@@ -490,7 +468,8 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (25, 'core', '0007_alter_cliente_cedula_alter_cliente_direccionip_and_more', '2026-06-01 14:59:34.702295'),
 (26, 'core', '0008_alter_cliente_estado', '2026-06-01 14:59:34.708871'),
 (27, 'core', '0009_alter_pago_comprobante', '2026-06-01 14:59:34.760175'),
-(28, 'core', '0010_cliente_fecharegistro', '2026-06-04 02:56:27.953811');
+(28, 'core', '0010_cliente_fecharegistro', '2026-06-04 02:56:27.953811'),
+(29, 'control_morosidad', '0001_initial', '2026-06-23 00:06:37.272513');
 
 -- --------------------------------------------------------
 
@@ -512,17 +491,7 @@ CREATE TABLE IF NOT EXISTS `django_session` (
 --
 
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
-('jeh71b1eo1namqf8im50nc3jvqofzc6f', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wRjeV:MSAUz3fmhMa7W3cufHVCXGhz7UvRfWnn7uPsngLZtwY', '2026-06-09 04:44:27.251263'),
-('pcrlru70mw05wxmbk221q29eesyfo6jz', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wRuYU:HKvEakkhSaM1n9QrlfAzqxbC771P6RGxD7PUj4rAW-c', '2026-06-09 16:22:58.085667'),
-('gc8vet5af4g239o4u3ddx15j8bb8prfj', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wSGXu:J0Nd2Gs12lUfiCcaQpsu22Ms4sJfk1Ll99UpeaoHiWM', '2026-06-10 15:51:50.286723'),
-('rrtn1a7uy5ek8kk7ffkloh5g91nxkac3', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wSnVY:M3nXuEpIw0XvXB19LejIU9cKeDCuGSc1mRr0eudbwlE', '2026-06-12 03:03:36.598192'),
-('3lgqibmvlxa9md191kvg14wvaoh0m717', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wSyIv:X7JThXOyMqMuOxMo7Bvxl0HKbtzVDkY6lZHi6o88qGE', '2026-06-12 14:35:17.062450'),
-('g8k7jx823m5321sh74cq18s6c3vcuw6q', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wTRFI:2jHL_pmZbBRQePHk0-GxRCfFh8D90tqyEEma3gjLas0', '2026-06-13 21:29:28.246263'),
-('9lg4pyumr75bllm7ufechnijvqu4bg0j', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wU48l:uDywh1ljEshLftUwiMcMBDBdG-ljDEJdev8j-aQVv8g', '2026-06-15 15:01:19.133111'),
-('dzq4hbaqldqh6wk11onpsexy6h5cf4r8', '.eJxVjEsOwiAUAO_y1obAAwp06d4zkMdPqgaS0q6MdzdNutDtzGTe4Gnfqt9HXv2SYAaEyy8LFJ-5HSI9qN07i71t6xLYkbDTDnbrKb-uZ_s3qDQqzFCsDjIokRCVIoFUkiNruHFZTEoFWwyZGIXThEZILaRFbhTybGnKRcPnC9A6Nw8:1wUEKz:FbtHTykSapw56iLwmFWaoxsqwQrvHoVK7xK1kXHJyK4', '2026-06-16 01:54:37.225855'),
-('jcf1b393a0xflgsu3z35t0em7x97y2gu', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wUF2n:LMKgGW2slmBgnDbjqwbg2eogbzWQfTo80esaNFMN6f8', '2026-06-16 02:39:53.571884'),
-('ip9a57z1gj902qy2d6cv5cnhguremgr9', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wYlF7:L6X9uuj8dzBO-WU0hVFq31HQQnh8a7trfSd6Qw41_Mc', '2026-06-28 13:51:17.926864'),
-('v6sgbossoleopelqfza0qwf3n1okdurx', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wXnxh:t3dUL3JndLWhlLlr0G6Y7DbRo81NH26dpBx8GjHwA08', '2026-06-25 22:33:21.247577');
+('l36zq4b1webt735vmu21juntyuv8utz5', '.eJxVjMsOwiAQAP9lz4awLFTo0Xu_oVnYIlUDSR8n47-bJj3odWYybxh538q4r9MyzgI9IFx-WeT0nOoh5MH13lRqdVvmqI5EnXZVQ5PpdTvbv0HhtUAPXpLNOknqcrQGQ0ZmCihIxpEmrQ11rnMm-uDsVQuSZx9yNtlpQknw-QLSizb_:1wlUVi:cclfYAkm5FqHP2QcdF4tygHoVVm342mBx9lMGAIYTkA', '2026-08-02 12:37:02.792594');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

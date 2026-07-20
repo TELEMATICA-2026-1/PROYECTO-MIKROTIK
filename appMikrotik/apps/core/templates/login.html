@@ -35,8 +35,21 @@
                 <!-- Titulo del login --> 
                 <h2 class="login-title text-white mb-4 text-start fw-bold">Iniciar Sesión</h2>
                 {% if error %}
-                <div class="alert alert-danger mb-3">
-                    {{ error }}
+                <!-- Contenedor del toast para mostrar el error -->
+                <div class="toast-container-custom">
+                    <!-- Mensaje de credenciales incorrectas -->
+                    <div id="loginToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-login-error="true">
+                        <!-- Título y botón de cierre -->
+                        <div class="toast-header ">
+                            <img src="{% static 'images/error.svg' %}" alt="Error" class="toast-icon me-2">
+                            <strong class="me-auto toast-title">Error de acceso</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                        </div>   
+                        <!-- Mensaje de error -->
+                        <div class="toast-body">
+                            {{ error }}
+                        </div>
+                    </div>
                 </div>
                 {% endif %}
                 <form method="POST">
@@ -62,5 +75,6 @@
         
      </div>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>
