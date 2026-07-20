@@ -1,0 +1,25 @@
+.filtro-temporal {
+    width: 170px;
+}
+
+.tarjeta-valor {
+    font-size: 2.5rem !important;
+}
+
+.tarjeta-valor-texto {
+    font-size: 2.5rem !important;
+}
+
+.grafica-panel-altura {
+    height: 320px;
+}
+
+.btn-imprimir {
+    background-color: #ffffff !important;
+    border-color: #dcdcdc !important;
+    color: white !important;
+}
+
+.btn-imprimir {
+    margin-left: 10px;
+}
