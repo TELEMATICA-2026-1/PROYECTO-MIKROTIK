@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333333;
+            font-size: 11px;
+        }
+        
+        /* Estructura de cabecera alineada estilo Reporte Integral */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            border: none;
+        }
+        .header-table td {
+            border: none;
+            padding: 0;
+            vertical-align: top; /* Corregido para que el logotipo no se baje */
+        }
+        .header-left {
+            text-align: left;
+            width: 70%;
+        }
+        .header-right {
+            text-align: right;
+            width: 30%;
+        }
+        
+        .logo {
+            width: 210px;
+            height: auto;
+        }
+        .titulo-reporte {
+            font-size: 22px;
+            font-weight: bold;
+            color: #003366;
+            text-align: left;
+            margin-bottom: 6px;
+        }
+        .meta-reporte {
+            font-size: 15px; 
+            color: #555555; 
+            text-align: left;
+        }
+        
+        /* Diseño de la tabla principal de datos */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .data-table th {
+            background-color: #0056B3;
+            color: #FFFFFF;
+            font-weight: bold;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #004494;
+        }
+        .data-table td {
+            padding: 7px 8px;
+            border: 1px solid #E0E0E0;
+            vertical-align: middle;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .badge-atipico { color: #D9534F; font-weight: bold; }
+        .badge-tipico { color: #5CB85C; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Tabla de organización superior -->
+    <table class="header-table">
+        <tr>
+            <td class="header-left">
+                <div class="titulo-reporte">MikroCore - Auditoría y Logs del Sistema</div>
+                <div class="meta-reporte">
+                    {% if fecha_inicio and fecha_fin %}
+                        Filtro Aplicado: HISTÓRICO | Desde {{ fecha_inicio }} Hasta {{ fecha_fin }} | 
+                    {% elif fecha_inicio %}
+                        Filtro Aplicado: Desde {{ fecha_inicio }} en adelante | 
+                    {% elif fecha_fin %}
+                        Filtro Aplicado: Hasta {{ fecha_fin }} | 
+                    {% else %}
+                        Filtro Aplicado: HISTÓRICO GLOBAL | 
+                    {% endif %}
+                    Generado el: {{ fecha_reporte }}
+                </div>
+            </td>
+            <td class="header-right">
+                {% if ruta_logo %}
+                    <img src="{{ ruta_logo }}" class="logo" alt="MikroCore">
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Tabla principal con los registros de auditoría -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 12%;">Tipo</th>
+                <th style="width: 53%;">Actividad</th>
+                <th style="width: 20%;">Módulo</th>
+                <th style="width: 15%;">Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>
+                        {% if log.error %}
+                            <span class="badge-atipico">Atípico</span>
+                        {% else %}
+                            <span class="badge-tipico">Típico</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.mensaje }}</td>
+                    <td>{{ log.modulo }}</td>
+                    <td>{{ log.fecha|date:"d/m/Y" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">Sin actividad registrada en el sistema.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
