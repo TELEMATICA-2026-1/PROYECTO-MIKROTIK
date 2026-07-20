@@ -168,22 +168,22 @@ def api_datos_reportes(request):
         "ingresos_semanas": {
             "labels": g_semanas_labels,
             "data": semana_data,
-            "titulo": "Recaudación Distribuida por Semanas ($)"
+            
         },
         "clientes_estado": {
             "labels": g2_labels,
             "data": g2_data,
-            "titulo": "Estado Actual de la Base de Clientes"
+            
         },
         "planes_vendidos": {
             "labels": g4_labels,
             "data": g4_data,
-            "titulo": "Planes de Internet más Vendidos"
+            
         },
         "evolucion_ingresos": {
             "labels": g5_labels if g5_labels else ["Sin Datos"],
             "data": g5_data if g5_data else [0.0],
-            "titulo": "Evolución de Ingresos Mensuales ($)"
+            
         }
     })
 
