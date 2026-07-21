@@ -14,4 +14,5 @@ urlpatterns = [
     path('modificar_pago/<int:id>/', views.modificar_pago, name='modificar_pago'),
     path('detalles_pago/<int:id>/', views.mostrar_detalles, name='detalles_pago'),
     path('pendientes/', views.pendientes, name='pagos_pendientes'),
+    path('gestion_pagos/exportar/<int:id>/', views.exportar_pagos_excel, name='exportar_pagos_excel'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

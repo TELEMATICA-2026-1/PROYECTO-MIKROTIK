@@ -44,7 +44,7 @@
                             <img src="{% static 'images/busqueda.svg' %}" alt="Buscar" title="Aplicar filtros y buscar" width="20" height="20">
                         </button>
                         <!-- botón de impresión -->
-                        <button class="btn btn-sm btn-outline-dark" type="button">
+                        <button class="btn btn-sm btn-outline-dark" type="submit" onclick="this.form.action='{% url 'exportar_pagos_excel' id=0 %}'; this.form.target='_blank'; setTimeout(() => { this.form.action=''; this.form.target='_self'; }, 500);">
                             <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" title="Imprimir" width="20" height="20">
                         </button>
                     </div>

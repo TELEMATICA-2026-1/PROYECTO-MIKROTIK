@@ -38,14 +38,15 @@
                                 </div>
                                 <!--botones-->
                                 <div class="d-flex gap-2">
-                                    <!-- buscar -->
-                                    <button class="btn btn-sm btn-outline-dark" type="submit">
-                                        <img src="{% static 'images/busqueda.svg' %}" alt="Buscar" title="Aplicar filtros y buscar" width="20" height="20">
-                                    </button>
-                                    <!-- imprimir -->
-                                    <button class="btn btn-sm btn-outline-dark" type="button">
-                                        <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" title="Imprimir" width="20" height="20">
-                                    </button>
+                                <!-- buscar -->
+                                <button class="btn btn-sm btn-outline-dark" type="submit">
+                                    <img src="{% static 'images/busqueda.svg' %}" alt="Buscar" title="Aplicar filtros y buscar" width="20" height="20">
+                                </button>
+                                 <!-- exportar PDF (Imprimir)  -->
+                             <a href="{% url 'exportar_logs_pdf' %}" id="btn-pdf-logs" onclick="generarPDFConFiltros(event)" class="btn btn-sm btn-outline-dark" title="Exportar Reporte PDF">
+                                   <img src="{% static 'images/imprimir.svg' %}" alt="Imprimir" width="20" height="20">
+                                </a>
+                            </div>
                                 </div>
                             </div>
                         </div>
@@ -186,4 +187,23 @@
 
 {% block scripts %}
     <script src="{% static 'js/logs.js' %}"></script>
+    <script>
+        function generarPDFConFiltros(event) {
+            event.preventDefault(); // Evita que se dispare el enlace vacío
+            
+            // Buscamos los inputs que genera Django para las fechas usando sus IDs estándar
+            let inputInicio = document.getElementById('id_fecha_inicio') || document.querySelector('input[name="fecha_inicio"]');
+            let inputFin = document.getElementById('id_fecha_fin') || document.querySelector('input[name="fecha_fin"]');
+            
+            let fechaInicio = inputInicio ? inputInicio.value : '';
+            let fechaFin = inputFin ? inputFin.value : '';
+            
+            // Construimos la URL con los parámetros reales de la pantalla
+            let urlBase = document.getElementById('btn-pdf-logs').getAttribute('href');
+            let urlFinal = `${urlBase}?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+            
+            // Abrimos el PDF con los filtros aplicados en una nueva pestaña
+            window.open(urlFinal, '_blank');
+        }
+    </script>
 {% endblock %}
