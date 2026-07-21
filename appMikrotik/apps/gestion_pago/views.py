@@ -77,6 +77,7 @@ def crear_pago(request,id):
                     'fecha': timezone.now(),
                     'error': 'El monto del pago excede el saldo pendiente del cliente.'
                     })
+            
             elif cliente.saldo == 0 and cliente.estado == 'Desconectado':
                 if reconectarClienteEspecifico(cliente):
                     cliente.estado = 'Solvente'
