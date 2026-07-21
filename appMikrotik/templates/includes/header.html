@@ -23,14 +23,19 @@
 
     <!-- botones de accion -->
     <div class="navbar d-flex gap-3">
+      {% if user.is_authenticated %}
         <!-- Preguntas frecuentes / Acerca de -->
-        <a href="#" class="text-white fs-5" title="Preguntas frecuentes" data-bs-toggle="tooltip">
-            <img src="{% static 'images/pregunta_frecuentes.svg' %}" alt="FAQ" width="30" height="30">
+        {% if user.is_superuser or user.is_staff %}
+        <a href="{% url 'admin:index' %}" class="text-white fs-5" title="Administración" data-bs-toggle="tooltip">
+            <img src="{% static 'images/ico_admin.svg' %}" alt="FAQ" width="30" height="30">
         </a>
+        {% endif %}
         <!-- Cerrar sesión -->
         <a href="{% url 'signout' %}" class="text-white fs-5" title="Cerrar sesión" data-bs-toggle="tooltip">
             <img src="{% static 'images/cerrar_sesion.svg' %}" alt="Logout" width="30" height="30">
         </a>
+        
+      {% endif %}
     </div>
 
 
